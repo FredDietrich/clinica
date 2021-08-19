@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login ou cadastro.</h1>
+    <form action="/login" method="POST">
+        <div>
+            <label for="username">Email</label>
+            <input type="text" id="email" name="email" required>
+        </div>
+        <div>
+            <label for="password">Senha</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <button type="submit">Login</button>
+    </form>
+    <a href="/register">Registrar</a>
+    {%if error == 'checkpassword'%}
+        {{'Por favor verifique a senha'}}
+    {% elif error == 'userdoesntexist' %}
+        {{'Este usuario nao existe'}}
+    {%endif%}
+</body>
+</html>

@@ -1,0 +1,8 @@
+<h1>
+    {% if user and profissao %}
+        Olá {{user[1]}}, voce está logado na sessão, e voce é um: {{profissao}}
+        <a href="/logout">Sair da sessão</a>
+        {% else %}
+        Você não está logado ainda. <a href="/login">Login</a>
+        {% endif %}
+    </h1>
