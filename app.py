@@ -6,8 +6,8 @@ salt = bcrypt.gensalt()
 #mysql setup
 dietrichDB = mysql.connector.connect(
     host='localhost',
-    user='dietrich',
-    password='Dietrich1212$',
+    user='',
+    password='',
     database='clinica'
 )
 cursor = dietrichDB.cursor()
