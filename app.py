@@ -4,13 +4,13 @@ import pymongo, os, bcrypt, mysql.connector
 salt = bcrypt.gensalt()
 
 #mysql setup
-dietrichDB = mysql.connector.connect(
+mysqlDB = mysql.connector.connect(
     host='localhost',
     user='',
     password='',
     database='clinica'
 )
-cursor = dietrichDB.cursor()
+cursor = mysqlDB.cursor()
 
 
 #functions
@@ -78,7 +78,7 @@ def register():
             insertsMedico = 'INSERT INTO medico VALUES(null, %s, %s, %s, %s, %s, %s)'
             valuesMedico = (request.form['name'], request.form['cpf'], request.form['crm'], request.form['email'], request.form['telefone'], cursor.lastrowid)
             cursor.execute(insertsMedico, valuesMedico)
-        dietrichDB.commit()
+        mysqlDB.commit()
         return redirect('/login')
     else:
         return render_template('register.jinja')
