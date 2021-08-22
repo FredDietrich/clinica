@@ -7,7 +7,7 @@ salt = bcrypt.gensalt()
 mysqlDB = mysql.connector.connect(
     host='localhost',
     user='',
-    password='',
+    password='Dietrich1212$',
     database='clinica'
 )
 cursor = mysqlDB.cursor()
@@ -67,15 +67,16 @@ def register():
         encPass = bcrypt.hashpw(request.form['password'].encode(), salt).decode('utf-8')
         insertsUsuario = 'INSERT INTO usuario VALUES(null, %s, %s, %s)'
         valUser = (request.form['name'], request.form['email'], encPass)
-        print(valUser)
         cursor.execute(insertsUsuario, valUser)
         print(cursor.statement)
         if(request.form['crm'] == ''):
             insertsPaciente = 'INSERT INTO paciente VALUES(null, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            print(request.form['name'], request.form['cpf'], request.form['email'], request.form['rua'], request.form['ncasa'], request.form['cep'], request.form['bairro'], request.form['telefone'], cursor.lastrowid)
             valuesPaciente = (request.form['name'], request.form['cpf'], request.form['email'], request.form['rua'], request.form['ncasa'], request.form['cep'], request.form['bairro'], request.form['telefone'], cursor.lastrowid)
             cursor.execute(insertsPaciente, valuesPaciente)
         else:
             insertsMedico = 'INSERT INTO medico VALUES(null, %s, %s, %s, %s, %s, %s)'
+            print(request.form['name'], request.form['cpf'], request.form['crm'], request.form['email'], request.form['telefone'], cursor.lastrowid)
             valuesMedico = (request.form['name'], request.form['cpf'], request.form['crm'], request.form['email'], request.form['telefone'], cursor.lastrowid)
             cursor.execute(insertsMedico, valuesMedico)
         mysqlDB.commit()
