@@ -4,9 +4,10 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
 #PRIMEIRA ENTRADA, ANO E MES PARA CRIAR A AGENDA
-ano = int(input('Insira o ano para fazer a criacao da agenda: '))
-mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
-
+#ano = int(input('Insira o ano para fazer a criacao da agenda: '))
+#mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
+ano = 2021
+mes = 10
 #GERANDO O CALENDARIO/DIAS
 
 diass = []
@@ -101,6 +102,19 @@ def checaProximoDia(inicio, fim, iConsultas, opcaoEdit, firstTime=True):
         consultasA[iConsultas].pop(opcaoEdit)
         return checaProximoDia(inicio, fim, iConsultas, opcaoEdit + 1, False)
 
+def apagaHorariosConflito(horariosEntrada, inicio, fim, opcaoEdit):
+    horariosInterno = horariosEntrada[opcaoEdit:]
+    print(horariosInterno)
+    print(inicio - relativedelta(inicio, fim))
+    for horario in horariosInterno:
+        print(horario)
+        print(inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S')))
+        if(inicio - relativedelta(inicio, fim) > inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S'))):
+            horariosInterno.remove(horario)
+            return apagaHorariosConflito(horariosInterno, inicio, fim, opcaoEdit)
+        else: 
+            return horariosEntrada
+
 print('\n')
 #AQUI COMECA A PARTE QUE O MEDICO ENXERGA
 while True:
@@ -191,8 +205,10 @@ while True:
                                       #SUBMENU EDITA HORARIOS
                                         while True:
                                             try: 
-                                                novoComeco = input('Insira o novo horario do comeco no formato correto(aaaa-mm-dd hh:mm:ss): ')
-                                                novoFim = input('Insira o novo horario do fim no formato correto(aaaa-mm-dd hh:mm:ss): ')
+                                                #novoComeco = input('Insira o novo horario do comeco no formato correto(aaaa-mm-dd hh:mm:ss): ')
+                                                #novoFim = input('Insira o novo horario do fim no formato correto(aaaa-mm-dd hh:mm:ss): ')
+                                                novoComeco = '2021-10-01 09:00:00'
+                                                novoFim = '2021-10-01 11:30:00'
                                             except:
                                                 continue
                                             try:
@@ -203,11 +219,8 @@ while True:
                                                     novoComeco = datetime.strptime(novoComeco, '%Y-%m-%d %H:%M:%S')
                                                     novoFim = datetime.strptime(novoFim, '%Y-%m-%d %H:%M:%S')
                                                     #validacao 1: if(novoComeco - relativedelta(novoComeco, novoFim) >= novoComeco - relativedelta(novoComeco, inicioproxima))
-                                                    if(checaProximoDia(novoComeco,novoFim, iConsultas, opcaoEdit)):
-                                                        print(f'Horario editado com sucesso, novo horario: {consultasA[iConsultas][opcaoEdit-1][0]} até {consultasA[iConsultas][opcaoEdit-1][1]}.')
-                                                        break
-                                                    else:
-                                                        break
+                                                    print(apagaHorariosConflito(consultasA[iConsultas], novoComeco, novoFim, opcaoEdit))
+                                                    break
                                             except:
                                                 continue
                             ili+=1
