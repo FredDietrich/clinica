@@ -3,6 +3,8 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
+from blessed import Terminal
+term = Terminal()
 #PRIMEIRA ENTRADA, ANO E MES PARA CRIAR A AGENDA
 #ano = int(input('Insira o ano para fazer a criacao da agenda: '))
 #mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
@@ -110,7 +112,7 @@ print('\n')
 #AQUI COMECA A PARTE QUE O MEDICO ENXERGA
 while True:
     try:
-        print(f"""
+        print(f"""{term.olive}
 ---------------------------------------------------
 -- CRIANDO AGENDA PARA O MES {mes} DO ANO {ano} ---
 ---------------------------------------------------
@@ -118,17 +120,17 @@ while True:
 ---------------------------------------------------
 -- DIGITE SAIR PARA SAIR DA CRIACAO DE AGENDA -----
 ---------------------------------------------------
-        {problema}
+        {problema}{term.normal}
             """)      
     except:
-        print(f"""
+        print(f"""{term.olive}
 ---------------------------------------------------
 -- CRIANDO AGENDA PARA O MES {mes} DO ANO {ano} ---
 ---------------------------------------------------
 -- INSIRA O DIA PARA CONFERIR/EDITAR OS HORARIOS --
 ---------------------------------------------------
 -- DIGITE SAIR PARA SAIR DA CRIACAO DE AGENDA -----
----------------------------------------------------
+---------------------------------------------------{term.normal}
             """)   
 #EXIBE O CALENDARIO PARA O MEDICO TER UMA NOCAO DOS DIAS   
     print(calendar.month(theyear=ano, themonth=mes))
@@ -138,7 +140,7 @@ while True:
     except:
         continue
     if(opcao == 'sair' or opcao == 'SAIR'):
-        print('saindo')
+        print(f'{term.red}saindo')
         break
     elif(opcao in dias or '0' + opcao in dias):
         for x in consultasA:
