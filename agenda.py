@@ -97,11 +97,11 @@ for i in dias:
 #FUNCAO PARA CHECAR SE O HORARIO INSERIDO NA EDICAO POSSUI CONFLITOS 
 def apagaHorariosConflito(horariosEntrada, inicio, fim, opcaoEdit):
     horariosInterno = horariosEntrada[opcaoEdit:]
-    print(horariosInterno)
-    print(inicio - relativedelta(inicio, fim))
+    #print(horariosInterno)
+    #print(inicio - relativedelta(inicio, fim))
     for horario in horariosInterno:
-        print(horario)
-        print(inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S')))
+        #print(horario)
+        #print(inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S')))
         if(inicio - relativedelta(inicio, fim) > inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S'))):
             horariosInterno.remove(horario)
             return apagaHorariosConflito(horariosInterno, inicio, fim, opcaoEdit)
@@ -147,13 +147,15 @@ while True:
             if(str(x[0][0][8:10]) == str(opcao)):
                 ili = 0
                 for i in x:
-                    print(f'{ili + 1}: Inicio: {i[0]}; Fim: {i[1]};')
+                    print(f'{ili + 1}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
                     ili+=1
+                print()
             elif(str(x[0][0][8:10]) == '0' + str(opcao)):
                 ili = 0
                 for i in x:
-                    print(f'{ili + 1}: Inicio: {i[0]}; Fim: {i[1]};')
+                    print(f'{ili + 1}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
                     ili+=1
+                print()
         #SUBMENU COM HORARIOS GERADOS
         while True:
             try:
@@ -198,10 +200,10 @@ while True:
                                       #SUBMENU EDITA HORARIOS
                                         while True:
                                             try: 
-                                                #novoComeco = input('Insira o novo horario do comeco no formato correto(aaaa-mm-dd hh:mm:ss): ')
-                                                #novoFim = input('Insira o novo horario do fim no formato correto(aaaa-mm-dd hh:mm:ss): ')
-                                                novoComeco = '2021-10-01 09:00:00'
-                                                novoFim = '2021-10-01 11:30:00'
+                                                novoComeco = input('Insira o novo horario do comeco no formato correto(aaaa-mm-dd hh:mm:ss): ')
+                                                novoFim = input('Insira o novo horario do fim no formato correto(aaaa-mm-dd hh:mm:ss): ')
+                                                #novoComeco = '2021-10-01 09:00:00'
+                                                #novoFim = '2021-10-01 11:30:00'
                                             except:
                                                 continue
                                             try:
