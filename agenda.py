@@ -93,15 +93,6 @@ for i in dias:
     consultasA.append(dia)
 
 #FUNCAO PARA CHECAR SE O HORARIO INSERIDO NA EDICAO POSSUI CONFLITOS 
-def checaProximoDia(inicio, fim, iConsultas, opcaoEdit, firstTime=True):
-    if(not inicio - relativedelta(inicio, fim) > inicio - relativedelta(inicio, datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S'))):
-        return True
-    else:
-        if(firstTime):
-            consultasA[iConsultas][opcaoEdit-1] = [novoComeco.strftime('%Y-%m-%d %H:%M:%S'), novoFim.strftime('%Y-%m-%d %H:%M:%S')]
-        consultasA[iConsultas].pop(opcaoEdit)
-        return checaProximoDia(inicio, fim, iConsultas, opcaoEdit + 1, False)
-
 def apagaHorariosConflito(horariosEntrada, inicio, fim, opcaoEdit):
     horariosInterno = horariosEntrada[opcaoEdit:]
     print(horariosInterno)
