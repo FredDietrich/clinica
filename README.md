@@ -1,4 +1,4 @@
-# SISTEMA CLI CLINICA MEDICA
+# SISTEMA DE CLINICA MEDICA
 ### Feito pelo time de Projeto Integrador da UNISC
 - Feito em Python
 - Para a disciplina de algoritmos e programação
