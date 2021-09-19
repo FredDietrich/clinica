@@ -11,7 +11,6 @@ term = Terminal()
 ano = 2021
 mes = 10
 #GERANDO O CALENDARIO/DIAS
-
 diass = []
 calendario = calendar.Calendar(firstweekday=0)
 cal = calendario.itermonthdates(ano, mes)
@@ -106,13 +105,13 @@ def apagaHorariosConflito(horariosEntrada, inicio, fim, opcaoEdit):
             horariosInterno.remove(horario)
             return apagaHorariosConflito(horariosInterno, inicio, fim, opcaoEdit)
         else: 
-            return horariosEntrada
+            return horariosInterno
 
 print('\n')
 #AQUI COMECA A PARTE QUE O MEDICO ENXERGA
 while True:
     try:
-        print(f"""{term.olive}
+        print(f"""{term.green}
 ---------------------------------------------------
 -- CRIANDO AGENDA PARA O MES {mes} DO ANO {ano} ---
 ---------------------------------------------------
@@ -123,7 +122,7 @@ while True:
         {problema}{term.normal}
             """)      
     except:
-        print(f"""{term.olive}
+        print(f"""{term.green}
 ---------------------------------------------------
 -- CRIANDO AGENDA PARA O MES {mes} DO ANO {ano} ---
 ---------------------------------------------------
@@ -133,7 +132,7 @@ while True:
 ---------------------------------------------------{term.normal}
             """)   
 #EXIBE O CALENDARIO PARA O MEDICO TER UMA NOCAO DOS DIAS   
-    print(calendar.month(theyear=ano, themonth=mes))
+    print(term.lightblue , calendar.month(theyear=ano, themonth=mes))
     problema = ''
     try:
         opcao = input('$ ')
@@ -143,17 +142,18 @@ while True:
         print(f'{term.red}saindo')
         break
     elif(opcao in dias or '0' + opcao in dias):
+        print()
         for x in consultasA:
             if(str(x[0][0][8:10]) == str(opcao)):
                 ili = 0
                 for i in x:
-                    print(f'{ili + 1}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
+                    print(f'{term.blue}{ili + 1}{term.lightblue}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
                     ili+=1
                 print()
             elif(str(x[0][0][8:10]) == '0' + str(opcao)):
                 ili = 0
                 for i in x:
-                    print(f'{ili + 1}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
+                    print(f'{term.blue}{ili + 1}{term.lightblue}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
                     ili+=1
                 print()
         #SUBMENU COM HORARIOS GERADOS
@@ -183,10 +183,12 @@ while True:
                               #SUBMENU "CRUD" DOS HORARIOS
                                 while True:
                                     try:
-                                        print("""
-1 - Apagar este horario
-2 - Editar este horario
-3 - Voltar
+                                        print(f"""
+{term.green}Editando: {term.blue}Inicio: {consultasA[iConsultas][opcaoEdit-1][0]} Fim: {consultasA[iConsultas][opcaoEdit-1][1]}
+{term.normal}
+{term.blue}1{term.lightblue}- Apagar este horario
+{term.blue}2{term.lightblue} - Editar este horario
+{term.blue}3{term.lightblue}- Voltar
                                         """)
                                         opcaoDentroDeEdit = input('Opcao: ')
                                     except:
@@ -200,21 +202,43 @@ while True:
                                       #SUBMENU EDITA HORARIOS
                                         while True:
                                             try: 
-                                                novoComeco = input('Insira o novo horario do comeco no formato correto(aaaa-mm-dd hh:mm:ss): ')
-                                                novoFim = input('Insira o novo horario do fim no formato correto(aaaa-mm-dd hh:mm:ss): ')
+                                                novoComeco = input('Insira o novo horario do comeco no formato correto(hh:mm): ')
+                                                novoFim = input('Insira o novo horario do fim no formato correto(hh:mm): ')
                                                 #novoComeco = '2021-10-01 09:00:00'
                                                 #novoFim = '2021-10-01 11:30:00'
                                             except:
                                                 continue
                                             try:
-                                                if(not (novoComeco[4] == '-' and novoComeco[7] == '-' and novoComeco[13] == ':' and novoComeco[16] == ':') or not (novoFim[4] == '-' and novoFim[7] == '-' and novoFim[13] == ':' and novoFim[16] == ':')):
-                                                    print('Insira os horarios no formato correto, com 0 em caso de digito simples.')
+                                                if(novoComeco == '' or novoFim == ''):
+                                                    break
+                                                elif(not (novoComeco[1] == ':' or novoComeco[2] == ':') or not (novoFim[1] == ':' or novoFim[2] == ':')):
+                                                    print('Insira os horarios no formato correto.')
                                                     continue
                                                 else: 
-                                                    novoComeco = datetime.strptime(novoComeco, '%Y-%m-%d %H:%M:%S')
-                                                    novoFim = datetime.strptime(novoFim, '%Y-%m-%d %H:%M:%S')
+                                                    novoComeco = datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0][:11] + novoComeco, '%Y-%m-%d %H:%M')
+                                                    novoFim = datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0][:11] + novoFim, '%Y-%m-%d %H:%M')
                                                     #validacao 1: if(novoComeco - relativedelta(novoComeco, novoFim) >= novoComeco - relativedelta(novoComeco, inicioproxima))
-                                                    print(apagaHorariosConflito(consultasA[iConsultas], novoComeco, novoFim, opcaoEdit))
+                                                    #print(apagaHorariosConflito(consultasA[iConsultas], novoComeco, novoFim, opcaoEdit))
+                                                    #verfica conflito e avisa o medico
+                                                    if(opcaoEdit > 1):
+                                                        if(not novoComeco >= datetime.strptime(consultasA[iConsultas][opcaoEdit-2][1], '%Y-%m-%d %H:%M:%S')):
+                                                            print(f'Conflito com horario anterior ({consultasA[iConsultas][opcaoEdit-2][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
+                                                            continue
+                                                        elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
+                                                            print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]}), por favor apague-o ou confira o novo horário inserido.')
+                                                            continue
+                                                        else:
+                                                            consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
+                                                            print(f'Horário editado com sucesso, {datetime.strftime(novoComeco, "%Y-%m-%d %H:%M:%S")} até {datetime.strftime(novoFim, "%Y-%m-%d %H:%M:%S")}.')
+                                                            break
+                                                    else:
+                                                        if(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
+                                                            print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]}), por favor apague-o ou confira o novo horário inserido.')
+                                                            continue
+                                                        else:
+                                                            consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
+                                                            print(f'\nHorário editado com sucesso, {datetime.strftime(novoComeco, "%Y-%m-%d %H:%M:%S")} até {datetime.strftime(novoFim, "%Y-%m-%d %H:%M:%S")}.')
+                                                            break
                                                     break
                                             except:
                                                 continue
