@@ -3,6 +3,8 @@
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import calendar
+from blessed import Terminal
+term = Terminal()
 #PRIMEIRA ENTRADA, ANO E MES PARA CRIAR A AGENDA
 #ano = int(input('Insira o ano para fazer a criacao da agenda: '))
 #mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
@@ -95,11 +97,11 @@ for i in dias:
 #FUNCAO PARA CHECAR SE O HORARIO INSERIDO NA EDICAO POSSUI CONFLITOS 
 def apagaHorariosConflito(horariosEntrada, inicio, fim, opcaoEdit):
     horariosInterno = horariosEntrada[opcaoEdit:]
-    print(horariosInterno)
-    print(inicio - relativedelta(inicio, fim))
+    #print(horariosInterno)
+    #print(inicio - relativedelta(inicio, fim))
     for horario in horariosInterno:
-        print(horario)
-        print(inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S')))
+        #print(horario)
+        #print(inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S')))
         if(inicio - relativedelta(inicio, fim) > inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S'))):
             horariosInterno.remove(horario)
             return apagaHorariosConflito(horariosInterno, inicio, fim, opcaoEdit)
@@ -110,7 +112,7 @@ print('\n')
 #AQUI COMECA A PARTE QUE O MEDICO ENXERGA
 while True:
     try:
-        print(f"""
+        print(f"""{term.olive}
 ---------------------------------------------------
 -- CRIANDO AGENDA PARA O MES {mes} DO ANO {ano} ---
 ---------------------------------------------------
@@ -118,17 +120,17 @@ while True:
 ---------------------------------------------------
 -- DIGITE SAIR PARA SAIR DA CRIACAO DE AGENDA -----
 ---------------------------------------------------
-        {problema}
+        {problema}{term.normal}
             """)      
     except:
-        print(f"""
+        print(f"""{term.olive}
 ---------------------------------------------------
 -- CRIANDO AGENDA PARA O MES {mes} DO ANO {ano} ---
 ---------------------------------------------------
 -- INSIRA O DIA PARA CONFERIR/EDITAR OS HORARIOS --
 ---------------------------------------------------
 -- DIGITE SAIR PARA SAIR DA CRIACAO DE AGENDA -----
----------------------------------------------------
+---------------------------------------------------{term.normal}
             """)   
 #EXIBE O CALENDARIO PARA O MEDICO TER UMA NOCAO DOS DIAS   
     print(calendar.month(theyear=ano, themonth=mes))
@@ -138,20 +140,22 @@ while True:
     except:
         continue
     if(opcao == 'sair' or opcao == 'SAIR'):
-        print('saindo')
+        print(f'{term.red}saindo')
         break
     elif(opcao in dias or '0' + opcao in dias):
         for x in consultasA:
             if(str(x[0][0][8:10]) == str(opcao)):
                 ili = 0
                 for i in x:
-                    print(f'{ili + 1}: Inicio: {i[0]}; Fim: {i[1]};')
+                    print(f'{ili + 1}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
                     ili+=1
+                print()
             elif(str(x[0][0][8:10]) == '0' + str(opcao)):
                 ili = 0
                 for i in x:
-                    print(f'{ili + 1}: Inicio: {i[0]}; Fim: {i[1]};')
+                    print(f'{ili + 1}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
                     ili+=1
+                print()
         #SUBMENU COM HORARIOS GERADOS
         while True:
             try:
@@ -196,10 +200,10 @@ while True:
                                       #SUBMENU EDITA HORARIOS
                                         while True:
                                             try: 
-                                                #novoComeco = input('Insira o novo horario do comeco no formato correto(aaaa-mm-dd hh:mm:ss): ')
-                                                #novoFim = input('Insira o novo horario do fim no formato correto(aaaa-mm-dd hh:mm:ss): ')
-                                                novoComeco = '2021-10-01 09:00:00'
-                                                novoFim = '2021-10-01 11:30:00'
+                                                novoComeco = input('Insira o novo horario do comeco no formato correto(aaaa-mm-dd hh:mm:ss): ')
+                                                novoFim = input('Insira o novo horario do fim no formato correto(aaaa-mm-dd hh:mm:ss): ')
+                                                #novoComeco = '2021-10-01 09:00:00'
+                                                #novoFim = '2021-10-01 11:30:00'
                                             except:
                                                 continue
                                             try:

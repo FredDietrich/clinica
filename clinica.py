@@ -1,7 +1,6 @@
 from modulos import *
 from time import sleep
 
-
 # função que busca o menu e exibe
 while True:
     resposta = menu(['Cadastros','Agendar','Consultar','Arquivos','Sair']) #lista das opçoes do menu principal
@@ -50,7 +49,7 @@ while True:
         elif resposta == 3:
             header('Saindo...')
         else:
-            header('Opção Inavalida!')           
+            header('Opção Invalida!')           
         
     elif resposta == 5:
         header('Saindo... Good Bye!')
