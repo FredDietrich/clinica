@@ -12,7 +12,8 @@ while True:
             elif resposta ==2:
                 header('Excluindo...')
             elif resposta == 3:
-                header('Saindo...')            
+                header('Saindo...')           
+                break
             else:
                 header('Opção Invalida')                                   
 
@@ -28,6 +29,7 @@ while True:
             header('Excluindo')
         elif resposta == 5:
             header('Saindo..')
+            break
         else:
             header('Opção Invalida!')              
 
@@ -37,6 +39,7 @@ while True:
             header('Consultando...')
         elif resposta == 2:
             header('Saindo...')
+            break
         else:
             header('Opção Invalida!')        
 
@@ -48,6 +51,7 @@ while True:
             header('Fazendo downloading...')
         elif resposta == 3:
             header('Saindo...')
+            break
         else:
             header('Opção Invalida!')           
         

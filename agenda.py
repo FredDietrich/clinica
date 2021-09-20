@@ -1,15 +1,24 @@
 #!/usr/bin/env python3
 
 from datetime import datetime
+import datetime as dt
 from dateutil.relativedelta import relativedelta
-import calendar
+import calendar, time, mysql.connector
 from blessed import Terminal
 term = Terminal()
+banco = mysql.connector.connect(
+    host="localhost",
+    user='dietrich',
+    password='',
+    database='clinica'
+)
+cursor = banco.cursor()
 #PRIMEIRA ENTRADA, ANO E MES PARA CRIAR A AGENDA
-#ano = int(input('Insira o ano para fazer a criacao da agenda: '))
-#mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
-ano = 2021
-mes = 10
+ano = int(input('Insira o ano para fazer a criacao da agenda: '))
+mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
+idMedico = int(input('Insira o ID do medico (apenas para testes)'))
+#ano = 2021
+#mes = 10
 #GERANDO O CALENDARIO/DIAS
 diass = []
 calendario = calendar.Calendar(firstweekday=0)
@@ -92,26 +101,22 @@ for i in dias:
         if(str(x[0][8:10]) == i):
             dia.append(x)
     consultasA.append(dia)
-
+"""
 #FUNCAO PARA CHECAR SE O HORARIO INSERIDO NA EDICAO POSSUI CONFLITOS 
 def apagaHorariosConflito(horariosEntrada, inicio, fim, opcaoEdit):
     horariosInterno = horariosEntrada[opcaoEdit:]
-    #print(horariosInterno)
-    #print(inicio - relativedelta(inicio, fim))
     for horario in horariosInterno:
-        #print(horario)
-        #print(inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S')))
         if(inicio - relativedelta(inicio, fim) > inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S'))):
             horariosInterno.remove(horario)
             return apagaHorariosConflito(horariosInterno, inicio, fim, opcaoEdit)
         else: 
             return horariosInterno
-
+"""
 print('\n')
 #AQUI COMECA A PARTE QUE O MEDICO ENXERGA
 while True:
-    try:
-        print(f"""{term.green}
+    problema = ''
+    print(f"""{term.green}
 ---------------------------------------------------
 -- CRIANDO AGENDA PARA O MES {mes} DO ANO {ano} ---
 ---------------------------------------------------
@@ -121,16 +126,7 @@ while True:
 ---------------------------------------------------
         {problema}{term.normal}
             """)      
-    except:
-        print(f"""{term.green}
----------------------------------------------------
--- CRIANDO AGENDA PARA O MES {mes} DO ANO {ano} ---
----------------------------------------------------
--- INSIRA O DIA PARA CONFERIR/EDITAR OS HORARIOS --
----------------------------------------------------
--- DIGITE SAIR PARA SAIR DA CRIACAO DE AGENDA -----
----------------------------------------------------{term.normal}
-            """)   
+
 #EXIBE O CALENDARIO PARA O MEDICO TER UMA NOCAO DOS DIAS   
     print(term.lightblue , calendar.month(theyear=ano, themonth=mes))
     problema = ''
@@ -139,7 +135,19 @@ while True:
     except:
         continue
     if(opcao == 'sair' or opcao == 'SAIR'):
-        print(f'{term.red}saindo')
+        #SAI DO MODULO AGENDA E ENVIA A AGENDA GERADA PARA O BANCO DE DADOS
+        print(f'{term.red}\nSaindo da agenda...\n')
+        print(term.normal)
+        for dia in consultasA:
+            #print('Dia:', dia[0][0][:10])
+            for horario in dia:
+                #print(f'Inicio: {horario[0][11:]}; Fim: {horario[1][11:]};')
+                sqlAgenda = 'INSERT INTO agenda VALUES(null, null, %s, %s, %s)'
+                valoresAgenda = (idMedico, horario[0], horario[1])
+                cursor.execute(sqlAgenda, valoresAgenda)
+                banco.commit()
+
+
         break
     elif(opcao in dias or '0' + opcao in dias):
         print()
@@ -157,15 +165,13 @@ while True:
                     ili+=1
                 print()
         #SUBMENU COM HORARIOS GERADOS
+        prob = ''
         while True:
-            try:
-                if prob != '':
-                    opcaoEdit = input(f'Insira o {prob} do horario para editar ou "SAIR" para voltar a lista de horarios do mes: ')
-                else:
-                    opcaoEdit = input(f'Insira o numero do horario para editar ou "SAIR" para voltar a lista de horarios do mes: ')
-            except:
+            if prob != '':
+                opcaoEdit = input(f'Insira o {prob} do horario para editar ou "SAIR" para voltar a lista de horarios do mes: ')
+            else:
                 opcaoEdit = input(f'Insira o numero do horario para editar ou "SAIR" para voltar a lista de horarios do mes: ')
-            prob = ''
+        
             if(opcaoEdit == 'sair' or opcaoEdit == 'SAIR'):
                 break
             try:
@@ -217,29 +223,50 @@ while True:
                                                 else: 
                                                     novoComeco = datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0][:11] + novoComeco, '%Y-%m-%d %H:%M')
                                                     novoFim = datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0][:11] + novoFim, '%Y-%m-%d %H:%M')
-                                                    #validacao 1: if(novoComeco - relativedelta(novoComeco, novoFim) >= novoComeco - relativedelta(novoComeco, inicioproxima))
-                                                    #print(apagaHorariosConflito(consultasA[iConsultas], novoComeco, novoFim, opcaoEdit))
-                                                    #verfica conflito e avisa o medico
+                                                    #PROCURANDO PROBLEMAS NO NOVO HORARIO
                                                     if(opcaoEdit > 1):
-                                                        if(not novoComeco >= datetime.strptime(consultasA[iConsultas][opcaoEdit-2][1], '%Y-%m-%d %H:%M:%S')):
-                                                            print(f'Conflito com horario anterior ({consultasA[iConsultas][opcaoEdit-2][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
+                                                        if((novoComeco < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30) or novoComeco > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30)) or (novoFim > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30) or novoFim < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30))):
+                                                            print('Novo horario muito longe do horario inicial, não seria melhor editar outro horario, caso possível?')
+                                                            continue
+                                                        elif(not novoComeco >= datetime.strptime(consultasA[iConsultas][opcaoEdit-2][1], '%Y-%m-%d %H:%M:%S')):
+                                                            print(f'Conflito com horario anterior ({consultasA[iConsultas][opcaoEdit-2][0][11:]} - {consultasA[iConsultas][opcaoEdit-2][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
                                                             continue
                                                         elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
-                                                            print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]}), por favor apague-o ou confira o novo horário inserido.')
+                                                            print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]} - {consultasA[iConsultas][opcaoEdit][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
                                                             continue
-                                                        else:
-                                                            consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
-                                                            print(f'Horário editado com sucesso, {datetime.strftime(novoComeco, "%Y-%m-%d %H:%M:%S")} até {datetime.strftime(novoFim, "%Y-%m-%d %H:%M:%S")}.')
-                                                            break
-                                                    else:
-                                                        if(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
-                                                            print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]}), por favor apague-o ou confira o novo horário inserido.')
+                                                        elif(not novoComeco.time() >= dt.time(9, 0) or not novoFim.time() >= dt.time(9, 0)):
+                                                            print(f'Horario antes do começo do expediente da clínica!')
+                                                            continue
+                                                        elif(not novoFim.time() <= dt.time(18, 0)):
+                                                            print(f'Horario após o fim do expediente da clinica!')
+                                                            continue
+                                                        elif not(novoComeco.time() <= dt.time(11, 15) and novoFim.time() <= dt.time(11,30) or novoComeco.time() >= dt.time(13, 30) and novoFim.time() >= dt.time(13,45)):
+                                                            print('Consulta no horário de almoço! Revise o horário.')
                                                             continue
                                                         else:
                                                             consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
                                                             print(f'\nHorário editado com sucesso, {datetime.strftime(novoComeco, "%Y-%m-%d %H:%M:%S")} até {datetime.strftime(novoFim, "%Y-%m-%d %H:%M:%S")}.')
                                                             break
-                                                    break
+                                                    else:
+                                                        if((novoComeco < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30) or novoComeco > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30)) or (novoFim > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30) or novoFim < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30))):
+                                                            print('Novo horario muito longe do horario inicial, não seria melhor editar outro horario, caso possível?')
+                                                            continue
+                                                        elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
+                                                            print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]} - {consultasA[iConsultas][opcaoEdit][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
+                                                            continue
+                                                        elif(not novoComeco.time() >= dt.time(9, 0) or not novoFim.time() >= dt.time(9, 0)):
+                                                            print(f'Horario antes do começo do expediente da clínica!')
+                                                            continue
+                                                        elif(not novoFim.time() <= dt.time(18, 0) or not novoComeco.time() < dt.time(18, 0)):
+                                                            print(f'Horario após o fim do expediente da clinica!')
+                                                            continue
+                                                        elif not(novoComeco.time() <= dt.time(11, 15) and novoFim.time() <= dt.time(11,30) or novoComeco.time() >= dt.time(13, 30) and novoFim.time() >= dt.time(13,45)):
+                                                            print('Consulta no horário de almoço! Revise o horário.')
+                                                            continue
+                                                        else:
+                                                            consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
+                                                            print(f'\nHorário editado com sucesso, {datetime.strftime(novoComeco, "%Y-%m-%d %H:%M:%S")} até {datetime.strftime(novoFim, "%Y-%m-%d %H:%M:%S")}.')
+                                                            break
                                             except:
                                                 continue
                             ili+=1
