@@ -8,11 +8,14 @@ from blessed import Terminal
 term = Terminal()
 banco = sqlite3.connect('clinica.db')
 cursor = banco.cursor()
-def leiaAnoMes():
+def leiaAnoMes(querMes = True):
     while True:
         try:
             ano = int(input('Insira o ano para fazer a criacao da agenda: '))
-            mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
+            if querMes:
+                mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
+            else: 
+                mes = ''
         except (ValueError, TypeError):
             print('ERRO: por favor, digite um ano e um mês válidos.')
             continue
@@ -158,18 +161,25 @@ def agenda(estado):
                     esseMes.append(dia)
                 mesess.append(esseMes)
             agrupadas.append(mesess)
-        consultasA = agrupadas[:]
-    """
-    #FUNCAO PARA CHECAR SE O HORARIO INSERIDO NA EDICAO POSSUI CONFLITOS 
-    def apagaHorariosConflito(horariosEntrada, inicio, fim, opcaoEdit):
-        horariosInterno = horariosEntrada[opcaoEdit:]
-        for horario in horariosInterno:
-            if(inicio - relativedelta(inicio, fim) > inicio - relativedelta(inicio, datetime.strptime(horario[0], '%Y-%m-%d %H:%M:%S'))):
-                horariosInterno.remove(horario)
-                return apagaHorariosConflito(horariosInterno, inicio, fim, opcaoEdit)
-            else: 
-                return horariosInterno
-    """
+        while True:
+            print("""
+    EDITANDO AGENDA
+    INSIRA UM DOS ANOS ABAIXO PARA EDITAR A AGENDA
+            """)
+            i = 1
+            for ano in anos:
+                print(f'{i}: {ano}')
+                i+=1
+            try:
+                qualAno = int(input('Insira a opção de um dos anos: '))
+            except:
+                continue
+            print('Meses disponiveis: \n')
+            for mes in consultasA[qualAno - 1]:
+                print(datetime.strftime(mes[3], '%m'))
+
+        
+
     print('\n')
     #AQUI COMECA A PARTE QUE O MEDICO ENXERGA
     def agendaCrud(consultasA):
@@ -335,4 +345,4 @@ def agenda(estado):
             else:
                 problema = 'Insira um dia que esta agendado.'
     agendaCrud(consultasA)
-agenda('criando')
+agenda('editando')
