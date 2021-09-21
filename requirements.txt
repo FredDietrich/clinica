@@ -1,0 +1,5 @@
+ansicon==1.89.0
+blessed==1.18.1
+jinxed==1.1.0
+six==1.16.0
+wcwidth==0.2.5
