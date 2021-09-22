@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from modulos import *
 from time import sleep
 
@@ -18,18 +19,19 @@ while True:
                 header('Opção Invalida')                                   
 
     elif resposta == 2:
-        resposta = agenda(['Agendar','Listar','Editar','Excluir','Sair']) # listas as opções do submenu da agenda
+        resposta = menuAgenda(['Criar agenda','Listar (to do)','Editar','Sair']) # listas as opções do submenu da agenda
         if resposta == 1:
-            header('Agendando...')
+            header('Acessando criação de agenda...')
+            agenda('criando')
         elif resposta == 2:
             header('Listando...')
+            continue
         elif resposta == 3:
-            header('Editando...')
+            header('Acessando edição de agenda...')
+            agenda('editando')
         elif resposta == 4:
-            header('Excluindo')
-        elif resposta == 5:
-            header('Saindo..')
-            break
+            header(term.red, 'Saindo..', term.normal)
+            continue
         else:
             header('Opção Invalida!')              
 

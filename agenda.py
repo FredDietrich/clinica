@@ -3,7 +3,7 @@
 from datetime import datetime
 import datetime as dt
 from dateutil.relativedelta import relativedelta
-import calendar, time, sqlite3
+import calendar, sqlite3
 from blessed import Terminal
 term = Terminal()
 banco = sqlite3.connect('clinica.db')
