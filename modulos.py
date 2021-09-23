@@ -358,22 +358,24 @@ def agendaCrud(consultasA, mes, ano, dias, estado):
                 except:
                     prob = 'NUMERO'
                     continue
+                print(opcaoEdit, ili, opcaoEdit <= ili)
                 if(opcaoEdit >= 1 and opcaoEdit <= ili):
                     iConsultas = 0
                     for x in consultasA:
                         if(str(x[0][0][8:10]) == str(opcao) or str(x[0][0][8:10]) == '0' + str(opcao)):
-                            ili = 0
+                            ili = 1
                             for i in x:
+                                print(ili)
                                 if(ili == int(opcaoEdit)):
                                 #SUBMENU "CRUD" DOS HORARIOS
                                     while True:
                                         try:
                                             print(f"""
-    {term.green}Editando: {term.blue}Inicio: {consultasA[iConsultas][opcaoEdit-1][0]} Fim: {consultasA[iConsultas][opcaoEdit-1][1]}
-    {term.normal}
-    {term.blue}1{term.lightblue}- Apagar este horario
-    {term.blue}2{term.lightblue} - Editar este horario
-    {term.blue}3{term.lightblue}- Voltar
+{term.green}Editando: {term.blue}Inicio: {consultasA[iConsultas][opcaoEdit-1][0]} Fim: {consultasA[iConsultas][opcaoEdit-1][1]}
+{term.normal}
+{term.blue}1{term.lightblue}- Apagar este horario
+{term.blue}2{term.lightblue} - Editar este horario
+{term.blue}3{term.lightblue}- Voltar
                                             """)
                                             opcaoDentroDeEdit = input('Opcao: ')
                                         except:
@@ -451,6 +453,9 @@ def agendaCrud(consultasA, mes, ano, dias, estado):
                                 ili+=1
                         iConsultas += 1
                     break
+                else: 
+                    print('Insira um horário dentre os listados.')
+                    continue
         else:
             problema = 'Insira um dia que esta agendado.'
 
