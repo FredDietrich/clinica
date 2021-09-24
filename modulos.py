@@ -5,6 +5,31 @@ import datetime as dt
 from dateutil.relativedelta import relativedelta
 import calendar, sqlite3
 from blessed import Terminal
+import itertools
+import sys, time
+
+def spinner(granularity):
+    """Wraps a function in an ASCII spinner display loop. granularity
+    represents the number of times the function should be called
+    before moving the spinner."""
+    spinner_chars = itertools.cycle("\|/-")
+    def make_spinner(f):
+        calls = 0        
+        def g(*args, **kwargs):
+            nonlocal calls
+            nonlocal granularity
+            result = f(*args, **kwargs)
+            if calls == 0:
+                sys.stdout.write("\b" + next(spinner_chars))
+                sys.stdout.flush()
+            calls = (calls + 1) % granularity
+            return result
+        return g
+    return make_spinner
+
+@spinner(10)
+def girador():
+    time.sleep(.01)
 
 #setando variaveis de uso de varios modulos
 term = Terminal()
@@ -351,6 +376,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado):
                         valoresAgenda = (1, horario[0], horario[1])
                         cursor.execute(sqlAgenda, valoresAgenda)
                         banco.commit()
+                        girador()
             break
         elif(opcao in dias or '0' + opcao in dias):
             print()
