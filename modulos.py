@@ -189,6 +189,7 @@ def agenda(estado):
         #CHAMA A FUNCAO DE APAGAR AS CONSULTAS
         consultas = apagaConsultas(consultas)
 
+
         #DIAS DO MES AGENDADOS
         dias = []
         for x in consultas:
