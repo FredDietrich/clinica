@@ -10,6 +10,7 @@ def cadastros():
     email_paciente = None
     cpf = None
     telefone_paciente = None
+    senha_paciente = None
     """
                     Banco de dados Paciente
      _________ _________ _________ _____________ _________
@@ -30,6 +31,7 @@ def cadastros():
     email_medico = None
     crm = None
     telefone_medico = None
+    senha_medico = None
     """
                     Banco de dados Médico
      _________ _________ _________ _____________ _________
@@ -117,10 +119,24 @@ def cadastros():
                 break
             else:
                 erroEmail()
+        
+        #Solicitação da senha de login
+        while condicao == 0:
+            senha_medico = str(input('\nDigite sua senha de login: \nOu deixe em branco para sair... '))
+            if senha_medico == "":
+                condicao = 1
+                break
+            confirmacao_senha = str(input("\nConfirme sua senha: \nOu deixe em branco para digitar novamente... "))
+            if confirmacao_senha == "":
+                continue
+            if senha_medico == confirmacao_senha:
+                print('\n\nSENHA CONFIRMADA!\n\n')
+                break
+            erroSenha()
 
         #Salvando os dados do cadastro no banco de dados dos medicos
         while condicao == 0:
-            banco_de_dados_medicos.append([nome_medico,crm,telefone_medico,email_medico])
+            banco_de_dados_medicos.append([nome_medico,crm,telefone_medico,email_medico,senha_medico])
             for i in range(len(banco_de_dados_medicos)):
                 print(banco_de_dados_medicos[i])
             break
@@ -175,6 +191,7 @@ def cadastros():
             if str(cpf[-2:]) == (str(produto1_cpf) + str(produto2_cpf)):
                 #print('CPF valido!!!')
                 break
+            erroCPF()
             continue
 
 
@@ -205,9 +222,24 @@ def cadastros():
                 break
             else:
                 erroEmail()
+
+        #Solicitação da senha de login
+        while condicao == 0:
+            senha_paciente = str(input('\nDigite sua senha de login: \nOu deixe em branco para sair... '))
+            if senha_paciente == "":
+                condicao = 1
+                break
+            confirmacao_senha = str(input("\nConfirme sua senha: \nOu deixe em branco para digitar novamente... "))
+            if confirmacao_senha == "":
+                continue
+            if senha_paciente == confirmacao_senha:
+                print('\n\nSENHA CONFIRMADA!\n\n')
+                break
+            erroSenha()
+
         #Salvando os dados do cadastro no banco de dados dos Pacientes
         while condicao == 0:
-            banco_de_dados_pacientes.append([nome_paciente,cpf,telefone_paciente,email_paciente])
+            banco_de_dados_pacientes.append([nome_paciente,cpf,telefone_paciente,email_paciente,senha_paciente])
             for i in range(len(banco_de_dados_pacientes)):
                 print(banco_de_dados_pacientes[i])
             break
@@ -227,6 +259,9 @@ def cadastros():
 
     def erroEmail():
         print('\nDigite um E-Mail Válido!')
+    
+    def erroSenha():
+        print('\nAs senhas não coincidem!\nDigite novamente...')
 
 
     entradaDeDados()
