@@ -19,12 +19,13 @@ while True:
                 header('Opção Invalida')                                   
 
     elif resposta == 2:
-        resposta = menuAgenda(['Criar agenda','Listar (to do)','Editar','Sair']) # listas as opções do submenu da agenda
+        resposta = menuAgenda(['Criar agenda','Listar','Editar','Sair']) # listas as opções do submenu da agenda
         if resposta == 1:
             header('Acessando criação de agenda...')
             agenda('criando')
         elif resposta == 2:
             header('Listando...')
+            agenda('exibindo')
             continue
         elif resposta == 3:
             header('Acessando edição de agenda...')
