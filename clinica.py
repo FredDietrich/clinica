@@ -6,17 +6,7 @@ from time import sleep
 while True:
     resposta = menu(['Cadastros','Agendar','Consultar','Arquivos','Sair']) #lista das opçoes do menu principal
     if resposta == 1:
-        while True:
-            resposta = cadastro(['Editar','Excluir','Sair']) # listas as opções do submenu de cadastro
-            if resposta == 1:
-                header('Editando...')
-            elif resposta ==2:
-                header('Excluindo...')
-            elif resposta == 3:
-                header('Saindo...')           
-                break
-            else:
-                header('Opção Invalida')                                   
+        cadastros()                                
 
     elif resposta == 2:
         resposta = menuAgenda(['Criar agenda','Listar','Editar','Sair']) # listas as opções do submenu da agenda
@@ -31,7 +21,7 @@ while True:
             header('Acessando edição de agenda...')
             agenda('editando')
         elif resposta == 4:
-            header(term.red, 'Saindo..', term.normal)
+            header(f'{term.red}Saindo.. {term.normal}')
             continue
         else:
             header('Opção Invalida!')              
