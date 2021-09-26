@@ -177,9 +177,9 @@ def cadastros():
     telefone_referencia = "(51)988888888"
 
     def entradaDeDados():
-        condicao = str(input('\nOlá deseja realizar um cadastro? (sim/não): ')).strip().upper()[0]
+        condicao = str(input('\nOlá deseja realizar um cadastro? [sim/não]: ')).strip().upper()[0]
         if condicao == "S":
-            medico_paciente = str(input("\nVocê é médico ou paciente? (médico/paciente): ")).strip().upper()[0]
+            medico_paciente = str(input("\nVocê é médico ou paciente? [médico/paciente]: ")).strip().upper()[0]
             if medico_paciente == "M":
                 cadastroMedico()
             elif medico_paciente == "P":
@@ -242,7 +242,7 @@ def cadastros():
                 condicao = 1
                 break
             if "@" in email_medico: #Verifica se tem "@" no email digitado
-                print('deu certo email')
+                #print('deu certo email')
                 break
             else:
                 erroEmail()
@@ -264,6 +264,10 @@ def cadastros():
         #Salvando os dados do cadastro no banco de dados dos medicos
         while condicao == 0:
             banco_de_dados_medicos.append([nome_medico,crm,telefone_medico,email_medico,senha_medico])
+            sqlInsereMedico = 'INSERT INTO medico VALUES (null, ?,?,?,?,?)'
+            valoresMedico = (nome_medico,crm,telefone_medico,email_medico,senha_medico)
+            cursor.execute(sqlInsereMedico, valoresMedico)
+            banco.commit()
             for i in range(len(banco_de_dados_medicos)):
                 print(banco_de_dados_medicos[i])
             break
@@ -316,7 +320,7 @@ def cadastros():
                 #print('produto = 0')
             #print(produto2_cpf)
             if str(cpf[-2:]) == (str(produto1_cpf) + str(produto2_cpf)):
-                #print('CPF valido!!!')
+                print('\nCPF confirmado!!!')
                 break
             erroCPF()
             continue
