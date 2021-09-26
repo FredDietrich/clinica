@@ -63,16 +63,17 @@ def header(txt):
 # faz a chamada para o login principal
 def login(clinica=False):
     header('Bem vindo a Clinica Tech Connect!')
-    login = input('Digite 1 para login.\n\nDigite 2 para Cadastro.\n\nInforme sua opção: ')
+    loginOpcao = input('Digite 1 para login.\n\nDigite 2 para Cadastro.\n\nInforme sua opção: ')
     while True:
-            if login == '1':
+            if loginOpcao == '1':
                 logado(clinica)
                 break
-            elif login == '2':
+            elif loginOpcao == '2':
                 cadastros()
             else:
-                print('Opção Invalida! Tente novamente')
-                break   
+                print(term.clear, 'Opção Invalida! Tente novamente')
+                login(clinica)
+                break
 
 #faz a chamado para a area de logado
 def logado(clinica):
@@ -83,6 +84,10 @@ def logado(clinica):
             senha = getpass.getpass('Informe sua senha:')
         except:
             continue
+        if info == '' and senha == '':
+            print(term.clear)
+            login(clinica)
+            break
         if '/' in info:
             selectCRM = 'select * from medico where crm = ?'
             valCRM = info, 
@@ -95,12 +100,14 @@ def logado(clinica):
         print(resposta)
         if(len(resposta) == 0):
             print('Nenhum usuário com esse CPF/CRM!')
-            input()
+            time.sleep(0.7)
+            print(term.clear)
+            continue
         else:
             if(senha == resposta[0][5]):
                 clinica(resposta[0])
             else: 
-                print('nao deu senha')
+                print('Usuário ou senha inválidos!')
     
 
 # se tiver / crm se nao medico
@@ -586,6 +593,7 @@ def agenda(estado):
             header('''  
     Não foi encontrada nenhuma agenda!
 ''')
+            time.sleep(2)
             return 0
         horarios = []
         for horario in response:
