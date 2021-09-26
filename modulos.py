@@ -61,11 +61,29 @@ def header(txt):
     print(linha())
     print(txt.center(50))
     print(linha())
+# faz a chamada para o login principal
+def login():
+    header('Bem vindo a Clinica Tech Connect!')
+    login = input('Digite 1 para login.\n\nDigite 2 para Cadastro.\n\nInforme sua opção: ')
+    while True:
+            if login == '1':
+                print('Aqui vai a verificação de cadastro, se existe')
+                logado()
+                break
+            elif login == '2':
+                cadastros()
+            else:
+                print('Opção Invalida! Tente novamente')
+                break   
 
+#faz a chamado para a area de logado
+def logado():
+    header('Você está logado!')
+    
 
 # exibe o menu independente da quantidade de opções
 def menu(lista):
-    header('Bem vindo a Clinica Tech Connect!')
+    header('Menu Principal Clinica Tech Connect!')
     c = 1
     for item in lista:
         print(f'{c} - {item}')
@@ -177,15 +195,17 @@ def cadastros():
     telefone_referencia = "(51)988888888"
 
     def entradaDeDados():
-        condicao = str(input('\nOlá deseja realizar um cadastro? [sim/não]: ')).strip().upper()[0]
+        condicao = str(input('\nOlá deseja realizar um cadastro? [s = Sim ou n = Não]: ')).strip().upper()[0]
         if condicao == "S":
-            medico_paciente = str(input("\nVocê é médico ou paciente? [médico/paciente]: ")).strip().upper()[0]
+            medico_paciente = str(input("\nVocê é médico ou paciente? [m = Médico ou p = Paciente]: ")).strip().upper()[0]
             if medico_paciente == "M":
                 cadastroMedico()
             elif medico_paciente == "P":
                 cadastroPaciente()
             else:
                 print('To do')
+        if condicao == "N":
+            return login()        
 
 
     def cadastroMedico(): # funcional
@@ -230,6 +250,7 @@ def cadastros():
             for i in range(len(telefone_medico_ref)):
                 if telefone_medico_ref[i].isdigit() == True: # Se o valor no índice [i] for numero intera na str telefone_medico
                     telefone_medico = telefone_medico + telefone_medico_ref[i]
+                    print('Telefone cadastrado!')
             if len(telefone_medico) != 11: # Se o telefone formatado não tiver 11 digitose da erro
                 erroTelefone()
                 continue
@@ -272,6 +293,7 @@ def cadastros():
                 print(banco_de_dados_medicos[i])
             break
         entradaDeDados()
+        return login()
 
     def cadastroPaciente(): # Funcional
         condicao = 0

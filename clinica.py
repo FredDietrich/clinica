@@ -4,6 +4,9 @@ from time import sleep
 
 # função que busca o menu e exibe
 while True:
+    resposta = login()
+           
+         
     resposta = menu(['Cadastros','Agendar','Consultar','Arquivos','Sair']) #lista das opçoes do menu principal
     if resposta == 1:
         cadastros()                                
