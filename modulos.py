@@ -5,9 +5,8 @@ import datetime as dt
 from dateutil.relativedelta import relativedelta
 import calendar, sqlite3
 from blessed import Terminal
-import itertools
+import itertools, getpass
 import sys, time
-
 def spinner(granularity):
     """Wraps a function in an ASCII spinner display loop. granularity
     represents the number of times the function should be called
@@ -62,13 +61,12 @@ def header(txt):
     print(txt.center(50))
     print(linha())
 # faz a chamada para o login principal
-def login():
+def login(clinica=False):
     header('Bem vindo a Clinica Tech Connect!')
     login = input('Digite 1 para login.\n\nDigite 2 para Cadastro.\n\nInforme sua opção: ')
     while True:
             if login == '1':
-                print('Aqui vai a verificação de cadastro, se existe')
-                logado()
+                logado(clinica)
                 break
             elif login == '2':
                 cadastros()
@@ -77,9 +75,35 @@ def login():
                 break   
 
 #faz a chamado para a area de logado
-def logado():
-    header('Você está logado!')
+def logado(clinica):
+    while True:
+        header('Fazendo login na clinica!')
+        try:
+            info = input('Informe seu CRM ou CPF: ')
+            senha = getpass.getpass('Informe sua senha:')
+        except:
+            continue
+        if '/' in info:
+            selectCRM = 'select * from medico where crm = ?'
+            valCRM = info, 
+            cursor.execute(selectCRM, valCRM)
+        else: 
+            selectCPF = 'select * from paciente where cpf = ?'
+            valCPF = info,
+            cursor.execute(selectCPF, valCPF)
+        resposta = cursor.fetchall()
+        print(resposta)
+        if(len(resposta) == 0):
+            print('Nenhum usuário com esse CPF/CRM!')
+            input()
+        else:
+            if(senha == resposta[0][5]):
+                clinica(resposta[0])
+            else: 
+                print('nao deu senha')
     
+
+# se tiver / crm se nao medico
 
 # exibe o menu independente da quantidade de opções
 def menu(lista):
@@ -94,6 +118,7 @@ def menu(lista):
     
 
 # exibe o submenu de cadastros
+"""
 def cadastro(lista):
     header('Deseja ajustar um cadastro! Selecione uma opção.')
     c = 1
@@ -103,7 +128,7 @@ def cadastro(lista):
     print(linha())
     opc = leiaInt('Digite sua Opção: ')
     return opc    
-
+"""
 # exibe o submenu de agenda
 def menuAgenda(lista):
     header('Bem vindo a sua Agenda')
@@ -138,7 +163,7 @@ def arquivos(lista):
     opc = leiaInt('Digite sua Opção: ')
     return opc
 
-# -- CADASTROS A PARTIR DAQUI --#
+# -- CADASTROS A PARTIR DAQUI -- #
 
 def cadastros():
 
@@ -167,7 +192,6 @@ def cadastros():
    3|Email    |Email    |Email    | .......     |Email    |
     |_________|_________|_________|_____________|_________|
     tabela de confecção da lista para orientação..."""
-
     banco_de_dados_medicos = [] #Dados dos Médicos
     nome_medico = None
     email_medico = None
@@ -233,11 +257,15 @@ def cadastros():
             if crm[-3:] in lista_de_regioes_crm: # pega os ultimos 3 digitos e busca na lista (lista_de_regioes_crm)
                 if len(crm[:-3]) <= len(crm_referência[:-3]): # pega todos digitos antes dos 3 ultimos e faz a comparacao com a quantidade de valores existentes no crm_referência
                     if crm[:-3].isdigit() == True : #verifica se os valores antes do 3 ultimos sao numeros
-                        print('\nCRM ACEITO!')
-                        #segue com cadastro de médico
-                        break
-                    erro_crm()
-                erro_crm()
+                        sqlTestaCRM = 'SELECT crm FROM medico WHERE crm = ?'
+                        valCRM = crm,
+                        cursor.execute(sqlTestaCRM, valCRM)
+                        if (len(cursor.fetchall()) == 0):
+                            print('\nCRM ACEITO!')
+                            #segue com cadastro de médico
+                            break
+                        else:
+                            print('\nCRM Já cadastrado no sistema.')
             erro_crm()
 
         #Telefone do Médico
@@ -250,10 +278,10 @@ def cadastros():
             for i in range(len(telefone_medico_ref)):
                 if telefone_medico_ref[i].isdigit() == True: # Se o valor no índice [i] for numero intera na str telefone_medico
                     telefone_medico = telefone_medico + telefone_medico_ref[i]
-                    print('Telefone cadastrado!')
             if len(telefone_medico) != 11: # Se o telefone formatado não tiver 11 digitose da erro
                 erroTelefone()
                 continue
+            print('Telefone cadastrado!') 
             break
 
         # Email do Médico
@@ -278,7 +306,10 @@ def cadastros():
             if confirmacao_senha == "":
                 continue
             if senha_medico == confirmacao_senha:
-                print('\n\nSENHA CONFIRMADA!\n\n')
+                print('\n\nSENHA CONFIRMADA!\n')
+                print('Usuário cadastrado com sucesso!')
+                time.sleep(3)
+                print(term.clear)
                 break
             erroSenha()
 
@@ -289,10 +320,7 @@ def cadastros():
             valoresMedico = (nome_medico,crm,telefone_medico,email_medico,senha_medico)
             cursor.execute(sqlInsereMedico, valoresMedico)
             banco.commit()
-            for i in range(len(banco_de_dados_medicos)):
-                print(banco_de_dados_medicos[i])
             break
-        entradaDeDados()
         return login()
 
     def cadastroPaciente(): # Funcional
@@ -342,12 +370,16 @@ def cadastros():
                 #print('produto = 0')
             #print(produto2_cpf)
             if str(cpf[-2:]) == (str(produto1_cpf) + str(produto2_cpf)):
-                print('\nCPF confirmado!!!')
-                break
+                sqlTestaCPF = 'SELECT cpf from paciente WHERE cpf = ?'
+                valCPF = cpf, 
+                cursor.execute(sqlTestaCPF, valCPF)
+                if(len(cursor.fetchall()) == 0):
+                    print('\nCPF confirmado!!!')
+                    break
+                else:
+                    print('\nCPF Já cadastrado!')
             erroCPF()
             continue
-
-
 
         #Telefone do Paciente
         while condicao == 0:
@@ -386,21 +418,27 @@ def cadastros():
             if confirmacao_senha == "":
                 continue
             if senha_paciente == confirmacao_senha:
-                print('\n\nSENHA CONFIRMADA!\n\n')
+                print('\n\nSENHA CONFIRMADA!\n')
+                print('Usuário cadastrado com sucesso!')
+                time.sleep(3)
+                print(term.clear)
                 break
             erroSenha()
 
         #Salvando os dados do cadastro no banco de dados dos Pacientes
         while condicao == 0:
             banco_de_dados_pacientes.append([nome_paciente,cpf,telefone_paciente,email_paciente,senha_paciente])
-            sqlInserePaciente = 'INSERT INTO paciente VALUES (null, ?,?,?,?,?)'
-            valoresPaciente = (nome_paciente,cpf,telefone_paciente,email_paciente,senha_paciente)
-            cursor.execute(sqlInserePaciente, valoresPaciente)
-            banco.commit()
-            for i in range(len(banco_de_dados_pacientes)):
-                print(banco_de_dados_pacientes[i])            
+            try:
+                sqlInserePaciente = 'INSERT INTO paciente VALUES (null, ?,?,?,?,?)'
+                valoresPaciente = (nome_paciente,cpf,telefone_paciente,email_paciente,senha_paciente)
+                cursor.execute(sqlInserePaciente, valoresPaciente)
+                banco.commit()
+            except:
+                print('CPF Inválido ou já cadastado no sistema.')
+                entradaDeDados()
+                break         
             break
-        entradaDeDados()
+        return login()
     """ -------------------Def's de erro!!!------------------------"""
     def erroNome():
         print('\nDigite um nome válido!')
