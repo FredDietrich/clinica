@@ -175,7 +175,7 @@ def arquivos(lista):
 # -- CADASTROS A PARTIR DAQUI -- #
 
 def cadastros():
-
+    #Atualização 26/09/2021 Robson
     lista_de_regioes_crm = ['/AC','/AL','/AP','/AM','/BA','/CE','/DF',
                             '/ES','/GO','/MA','/MT','/MS','/MG','/PA',
                             '/PB','/PR','/PE','/PI','/RJ','/RN','/RS',
