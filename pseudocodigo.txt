@@ -1,0 +1,181 @@
+var string usuario, medico, paciente, especialidade, endereco, telefone
+var int senha, CRM, CPF
+
+Escreva('Bem Vindo ao Sistema de Consultas On line. Faça seu cadastro.')
+Escreva('Digite seu nome ou email.')
+Leia(usuario)
+Escreva('Digite sua Senha.')
+Leia(senha)
+Escreva('Informe se você é medico ou paciente')
+Leia(medico,paciente)
+	se(medico==true)entao
+		Escreva('Informe seu CRM')
+		Leia(CRM)
+		Escreva('Informe sua especialidade')
+		Leia(especialidade)
+		Escreva('Informe seu endereço')
+		Leia(endereco)
+		Escreva('Informe seu telefone')
+		Leia(telefone)
+		
+	senão
+		se(paciente == true)
+			Escreva('Informe seu CPF')
+			Leia(CPF)
+			Escreva('Informe seu endereço')
+			Leia(endereco)
+			Escreva('Informe seu telefone')
+			Leia(telefone)
+		senao
+			('Escreva opção Invalida!')
+	Escreva('Cadastro realizado com Sucesso')
+
+Escreva('Entre novamente com o seu usuario')
+Leia(usuario)
+Escreva(Digite sua senha)
+Leia(senha)
+	se(nome!=usuario)então
+		Escreva('Nome incorreto')
+	senão
+		se(senha!=senha)então
+			Escreva('Senha Incorreta')
+		senão
+		Escreva(Bem Vindo!)
+		
+	se(usuario==medico)entao
+	enquanto(opcao !=5)faça		
+		Escreva('...Menu...')
+		Escreva('1 - Cadastro')
+		Escreva('2 - Agenda')
+		Escreva('3 - Consulta')
+		Escreva('4 - Arquivos')
+		Escreva('5 - Sair')
+		Escreva('Digite o numero da opção desejada')
+		Leia(opcao)
+	caso 1:
+		Escreva('Tela de cadastro')
+		Escreva('Alterar especialidade')
+		Leia(especialidade)
+		Escreva('Alterar endereço')
+		Leia(endereco)
+		Escreva('Alterar telefone')
+		Leia(telefone)
+		Escreva('Dados gravados com sucesso')
+	
+	caso 2:
+		var int ano, mes
+		Leia(ano)
+		Leia(mes)
+		Escreva(‘Criando agenda’)
+		var int[] agenda  
+		agenda <- CriaAgenda(ano, mes)
+		Escreva(‘Calendario do mes:’)
+		var string opcao
+		Escreva(‘Digite um dia do mês para editar os horários ou digite sair para sair da criação da agenda’)
+		Leia(opcao)
+		caso ‘sair’:
+			Escreva(‘Você saiu do programa’)
+		Se opcao dentro de agenda:
+			Escreva(‘Horarios para esse dia:’)
+			
+
+		
+			
+	caso 3:
+		Escreva('Tela de Consulta')
+		Escreva('Confira o horario agendado pelo paciente. Se estiver correto, entre na sala')
+		Escreva('Usuario Conectado')
+	
+	caso 4:
+		var string arquivo
+	
+		Escreva('Tela de Arquivos')
+		Escreva('Digite a opção que deseja fazer')
+		Escreva('A - Anexar arquivos')
+		Escreva('B - Receber arquivos')
+		Leia(Leia opt)
+		caso A:
+			Escreva('Insira o arquivo desejado')
+			Leia(arquivo)
+			Escreva('Arquivo anexado com sucesso!')
+		caso B:
+			Escreva('Escolha o arquivo que deseja baixar')
+			Leia(arquivo)
+			Escreva('Arquivo baixado com sucesso')
+			
+	caso 5:
+		Escreva('Você saiu do programa')
+	
+	se(usuario==paciente)entao
+		enquanto(opcao !=5)faça		
+			Escreva('...Menu...')
+			Escreva('1 - Cadastro')
+			Escreva('2 - Agenda')
+			Escreva('3 - Consulta')
+			Escreva('4 - Arquivos')
+			Escreva('5 - Sair')
+			Escreva('Digite o numero da opção desejada')
+			Leia(opcao)
+		caso 1:
+			Escreva('Tela de cadastro')
+			Escreva('Alterar endereço')
+			Leia(endereco)
+			Escreva('Alterar telefone')
+			leia(telefone)
+			Escreva('Dados gravados com sucesso')
+	
+		caso 2:
+			var string horario, dia
+			var char letra
+	
+			Escreva('Tela de Agenda')
+			Escreva('A - Agendar horario de consulta')
+			Escreva('B - Editar horario de consulta')
+			Escreva('C - Excluir horarios de consulta')
+			Leia(opcao)
+			enquanto(opcao == letra)faca
+	
+			caso A:
+				Escreva('Informe o horario que deseja consultar')
+				leia(horario)
+				se(horario != null)entao
+					Escreva('Horarios já está reservado, tente outro horario')
+				senao					
+					Escreva('Horario agendado com sucesso')
+			caso B:
+				se(horario!=dia)então
+					Escreva('Horario não encontrado!')
+				senao
+					Escreva('Horario editado com sucesso')
+			caso C:
+				se(horario != dia)entao
+					Escreva('Horario não encontrado!')
+				senao
+					Escreva('Horario excluido com sucesso!')
+	
+		caso 3:
+			Escreva('Tela de Consulta')
+			Escreva('Confira se é o seu o horario agendado está correto. Se estiver correto, entre na sala')
+			Escreva('Usuario Conectado')
+	
+		caso 4:
+			var string arquivo
+			var opt
+
+			Escreva('Tela de Arquivos')
+			Escreva('Digite a opção que deseja fazer')
+			Escreva('A - Anexar arquivos')
+			Escreva('B - Receber arquivos')
+			Leia(Leia opt)
+			caso A:
+				Escreva('Insira o arquivo desejado')
+				Leia(arquivo)
+				Escreva('Arquivo anexado com sucesso!')
+			caso B:
+				Escreva('Escolha o arquivo que deseja baixar')
+				Leia(arquivo)
+				Escreva('Arquivo baixado com sucesso')
+			
+			caso 5:
+			Escreva('Você saiu do programa')	
+
