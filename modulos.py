@@ -6,7 +6,8 @@ from dateutil.relativedelta import relativedelta
 import calendar, sqlite3
 from blessed import Terminal
 import itertools, getpass
-import sys, time
+import sys, time, locale
+locale.setLocale(locale.LC_ALL, 'pt_BR')
 def spinner(granularity):
     """Wraps a function in an ASCII spinner display loop. granularity
     represents the number of times the function should be called
