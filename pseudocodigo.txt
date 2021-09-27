@@ -1,6 +1,6 @@
 var string usuario, medico, paciente, especialidade, endereco, telefone
 var int senha, CRM, CPF
-
+var string agendas[]
 Escreva('Bem Vindo ao Sistema de Consultas On line. Faça seu cadastro.')
 Escreva('Digite seu nome ou email.')
 Leia(usuario)
@@ -63,24 +63,100 @@ Leia(senha)
 		Escreva('Dados gravados com sucesso')
 	
 	caso 2:
-		var int ano, mes
-		Leia(ano)
-		Leia(mes)
-		Escreva(‘Criando agenda’)
-		var int[] agenda  
-		agenda <- CriaAgenda(ano, mes)
-		Escreva(‘Calendario do mes:’)
-		var string opcao
-		Escreva(‘Digite um dia do mês para editar os horários ou digite sair para sair da criação da agenda’)
-		Leia(opcao)
-		caso ‘sair’:
-			Escreva(‘Você saiu do programa’)
-		Se opcao dentro de agenda:
-			Escreva(‘Horarios para esse dia:’)
+        var int opcao
+        Escreva('Agenda')
+        Escreva('1- Criar agenda')
+        Escreva('2- Exibir agenda')
+        Escreva('3- Editar agenda')
+        Escreva('4- Sair')
+        Escreva('Insira uma opção:')
+        Leia(opcao)
+        caso 1:
+            var int ano, mes
+            Leia(ano)
+            Leia(mes)
+            Escreva(‘Criando agenda’)
+            var string agenda[]  
+            agenda <- CriaAgenda(ano, mes)
+            Escreva(‘Calendario do mes:’)
+            var string opcao
+            Escreva(‘Digite um dia do mês para editar os horários ou digite sair para sair da criação da agenda: ’)
+            Leia(opcao)
+            caso ‘sair’:
+                agendas = agendas + agenda
+                Escreva(‘Você saiu do programa’)
+            Se opcao dentro de agenda:
+                Escreva(‘Horarios para esse dia:’)
+                Para horario dentro de agenda:
+                    Escreva(horario)
+                var string opcao
+                Escreva('Insira um horário para editar: ')
+                Leia(opcao)
+                Se opcao dentro de agenda:
+                    Escreva('1- Editar este horário')
+                    Escreva('2- Apagar este horário')
+                    Escreva('3- Voltar')
+                    var int opcao
+                    Escreva('Insira uma opção: ')
+                    Leia(opcao)
+                    caso 1:
+                        var string novoHorario
+                        Escreva('Insira o novo horário: ')
+                        Leia(novoHorario)
+                        agenda[horario] = novoHorario
+                    caso 2:
+                        agenda[horario] = ''
+                    caso 3:
+                        agendas = agendas + agenda
+                        Escreva('Você saiu da agenda!')
+                Se não:
+                    Escreva('Insira um dia válido!')
+        caso 2:
+            Se tamanho(agendas) == 0:
+                Escreva('Nenhuma agenda ainda!')
+            Se não:
+                Para agenda dentro de agendas:
+                    Escreva(agenda)
+                var int opcao
+                Escreva('Escolha uma agenda: ')
+                Leia(opcao)
+                Para horario dentro de opcao:
+                    Escreva(horario)
+                Escreva('Pressione qualquer tecla para sair...')
+        caso 3:
+            Se tamanho(agendas) == 0:
+                Escreva('Nenhuma agenda ainda!')
+            Se não:
+                Para agenda dentro de agendas:
+                    Escreva(agenda)
+                var int opcaoAgenda
+                Escreva('Escolha uma agenda: ')
+                Leia(opcaoAgenda)
+                Escreva('1- Editar horários')
+                Escreva('2- Apagar agenda)
+                Escreva('3- Sair')
+                Escreva('Insira uma opção: ')
+                var int opcao
+                Leia(opcao)
+                caso 1:
+                    Para horario dentro de opcaoAgenda:
+                        Escreva(horario)
+                    var string opcao, novoHorario
+                    Escreva('Selecione um horário para editar: ')
+                    Leia(opcao)
+                    Escreva('Insira o novo horário: ')
+                    Leia(novoHorario)
+                    agendas[opcaoAgenda-1][opcao] = novoHorario
+                caso 2:
+                    agendas.Remover(agendas[opcaoAgenda-1])
+                caso 3:
+                    Escreva('Você saiu da agenda')
+        caso 4:
+            Escreva('Você saiu da agenda')
+
+        
 			
 
-		
-			
 	caso 3:
 		Escreva('Tela de Consulta')
 		Escreva('Confira o horario agendado pelo paciente. Se estiver correto, entre na sala')
