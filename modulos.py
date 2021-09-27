@@ -99,16 +99,20 @@ def logado(clinica):
         resposta = cursor.fetchall()
         print(resposta)
         if(len(resposta) == 0):
-            print('Nenhum usuário com esse CPF/CRM!')
-            time.sleep(0.7)
+            print(term.clear)
+            print(f'{term.red}Nenhum usuário com esse CPF/CRM!{term.normal}')
+            time.sleep(3)
             print(term.clear)
             continue
         else:
             if(senha == resposta[0][5]):
                 clinica(resposta[0])
             else: 
-                print('Usuário ou senha inválidos!')
-    
+                print(term.clear)
+                print(f'{term.red}Você digitou a senha incorreta!{term.normal}')
+                time.sleep(3)
+                print(term.clear)
+                print('Usuário ou senha inválidos!')   
 
 # se tiver / crm se nao medico
 
@@ -172,7 +176,7 @@ def arquivos(lista):
 
 # -- CADASTROS A PARTIR DAQUI -- #
 
-def cadastros():
+def cadastros():#26092021
 
     lista_de_regioes_crm = ['/AC','/AL','/AP','/AM','/BA','/CE','/DF',
                             '/ES','/GO','/MA','/MT','/MS','/MG','/PA',
@@ -226,15 +230,17 @@ def cadastros():
     telefone_referencia = "(51)988888888"
 
     def entradaDeDados():
-        condicao = str(input('\nOlá deseja realizar um cadastro? [s = Sim ou n = Não]: ')).strip().upper()[0]
+        condicao = str(input(f'\nOlá deseja realizar um cadastro? {term.blue}[s = Sim ou n = Não]: {term.normal}')).strip().upper()[0]
+        print(term.clear)
         if condicao == "S":
-            medico_paciente = str(input("\nVocê é médico ou paciente? [m = Médico ou p = Paciente]: ")).strip().upper()[0]
+            medico_paciente = str(input(f"\nVocê é médico ou paciente?{term.blue} [m = Médico ou p = Paciente]: {term.normal}")).strip().upper()[0]
+            print(term.clear)
             if medico_paciente == "M":
                 cadastroMedico()
             elif medico_paciente == "P":
                 cadastroPaciente()
             else:
-                print('To do')
+                return login()
         if condicao == "N":
             return login()        
 
@@ -243,7 +249,8 @@ def cadastros():
         condicao = 0
         #Nome do Médico
         while condicao == 0:
-            nome_medico = str(input('\nDigite o seu nome completo:   \nOu deixe em branco para sair... '))
+            print(term.clear)
+            nome_medico = str(input(f'{term.lightblue}\nDigite o seu nome completo:   \nOu deixe em branco para sair... '))
             if nome_medico == "" or nome_medico == " ":
                 condicao = 1
                 break
@@ -255,6 +262,7 @@ def cadastros():
 
         #CRM do Médico
         while condicao == 0:
+            print(term.clear)
             crm = str(input('\nDigite seu CRM! "Exemplo 00000000/RS"  \nOu deixe em branco para sair... ')).strip().upper()
             if crm == "":
                 condicao = 1
@@ -268,15 +276,18 @@ def cadastros():
                         valCRM = crm,
                         cursor.execute(sqlTestaCRM, valCRM)
                         if (len(cursor.fetchall()) == 0):
-                            print('\nCRM ACEITO!')
+                            print(f'{term.green}\nCRM ACEITO!{term.lightblue}')
+                            time.sleep(3)
                             #segue com cadastro de médico
                             break
                         else:
-                            print('\nCRM Já cadastrado no sistema.')
+                            print(f'{term.green}\nCRM Já cadastrado no sistema.{term.lightblue}')
+                            time.sleep(3)
             erro_crm()
 
         #Telefone do Médico
         while condicao == 0:
+            print(term.clear)
             telefone_medico = ""
             telefone_medico_ref = str(input('\nDigite seu telefone: "Exemplo: (51) 98888 8888"\nOu deixe em branco para sair... ')).strip().upper()
             if telefone_medico_ref == "":
@@ -288,23 +299,27 @@ def cadastros():
             if len(telefone_medico) != 11: # Se o telefone formatado não tiver 11 digitose da erro
                 erroTelefone()
                 continue
-            print('Telefone cadastrado!') 
+            print(f'{term.green}\nTelefone cadastrado!{term.lightblue}') 
+            time.sleep(3)
             break
 
         # Email do Médico
         while condicao == 0:
+            print(term.clear)
             email_medico = str(input('\nDigite seu email: "Exemplo: nome@domínio.com.br"\nOu deixe em branco para sair... '))
             if email_medico == "":
                 condicao = 1
                 break
             if "@" in email_medico: #Verifica se tem "@" no email digitado
-                #print('deu certo email')
+                print(f'{term.green}\nE-mail cadastrado!!!{term.lightblue}')
+                time.sleep(3)
                 break
             else:
                 erroEmail()
         
         #Solicitação da senha de login
         while condicao == 0:
+            print(term.clear)
             senha_medico = str(input('\nDigite sua senha de login: \nOu deixe em branco para sair... '))
             if senha_medico == "":
                 condicao = 1
@@ -313,9 +328,10 @@ def cadastros():
             if confirmacao_senha == "":
                 continue
             if senha_medico == confirmacao_senha:
-                print('\n\nSENHA CONFIRMADA!\n')
-                print('Usuário cadastrado com sucesso!')
-                time.sleep(3)
+                print(term.clear)
+                print(f'{term.green}\n\nSENHA CONFIRMADA!\n')
+                print(f'\nUsuário cadastrado com sucesso!{term.lightblue}')
+                time.sleep(4)
                 print(term.clear)
                 break
             erroSenha()
@@ -327,6 +343,7 @@ def cadastros():
             valoresMedico = (nome_medico,crm,telefone_medico,email_medico,senha_medico)
             cursor.execute(sqlInsereMedico, valoresMedico)
             banco.commit()
+            print(term.normal,term.clear)
             break
         return login()
 
@@ -334,7 +351,8 @@ def cadastros():
         condicao = 0
         #Nome do Paciente
         while condicao == 0:
-            nome_paciente = str(input('\nDigite o seu nome completo:   \nOu deixe em branco para sair... '))
+            print(term.clear)
+            nome_paciente = str(input(f'{term.lightblue}\nDigite o seu nome completo:   \nOu deixe em branco para sair... '))
             if nome_paciente == "" or nome_paciente == " ":
                 condicao = 1
                 break
@@ -346,6 +364,7 @@ def cadastros():
 
         #CPF do Paciente
         while condicao == 0:
+            print(term.clear)
             produto1_cpf = 0 # variavel para comparar o penultimo digito do CPF
             produto2_cpf = 0 # variavel para comparar o ultimo digito do CPF
             cpf = "" 
@@ -381,15 +400,19 @@ def cadastros():
                 valCPF = cpf, 
                 cursor.execute(sqlTestaCPF, valCPF)
                 if(len(cursor.fetchall()) == 0):
-                    print('\nCPF confirmado!!!')
+                    print(f'{term.green}\nCPF confirmado!!!{term.lightblue}')
+                    time.sleep(3)
                     break
                 else:
-                    print('\nCPF Já cadastrado!')
+                    print(term.clear)
+                    print(f'{term.red}\nCPF Já cadastrado!{term.lightblue}')
+                    time.sleep(3)
             erroCPF()
             continue
 
         #Telefone do Paciente
         while condicao == 0:
+            print(term.clear)
             telefone_paciente = ""
             telefone_paciente_ref = str(input('\nDigite seu telefone: "Exemplo: (51) 98888 8888"\nOu deixe em branco para sair... ')).strip().upper()
             if telefone_paciente_ref == "":
@@ -401,22 +424,27 @@ def cadastros():
             if len(telefone_paciente) != 11:
                 erroTelefone()
                 continue
+            print(f'{term.green}\nTelefone cadastrado!{term.lightblue}') 
+            time.sleep(3)
             break
 
         # Email do Paciente
         while condicao == 0:
+            print(term.clear)
             email_paciente = str(input('\nDigite seu email: "Exemplo: nome@domínio.com.br"\nOu deixe em branco para sair... '))
             if email_paciente == "":
                 condicao = 1
                 break
             if "@" in email_paciente: #Verifica se tem "@" no email digitado
-                print('deu certo email')
+                print(f'{term.green}\nE-mail cadastrado!!!{term.lightblue}')
+                time.sleep(3)
                 break
             else:
                 erroEmail()
 
         #Solicitação da senha de login
         while condicao == 0:
+            print(term.clear)
             senha_paciente = str(input('\nDigite sua senha de login: \nOu deixe em branco para sair... '))
             if senha_paciente == "":
                 condicao = 1
@@ -425,10 +453,10 @@ def cadastros():
             if confirmacao_senha == "":
                 continue
             if senha_paciente == confirmacao_senha:
-                print('\n\nSENHA CONFIRMADA!\n')
-                print('Usuário cadastrado com sucesso!')
-                time.sleep(3)
                 print(term.clear)
+                print(f'{term.green}\n\nSENHA CONFIRMADA!\n')
+                print(f'\nUsuário cadastrado com sucesso!{term.lightblue}')
+                time.sleep(4)
                 break
             erroSenha()
 
@@ -441,29 +469,44 @@ def cadastros():
                 cursor.execute(sqlInserePaciente, valoresPaciente)
                 banco.commit()
             except:
-                print('CPF Inválido ou já cadastado no sistema.')
+                print(f'{term.green}\nCPF Inválido ou já cadastado no sistema!{term.lightblue}')
+                time.sleep(4)
+                print(term.clear)
                 entradaDeDados()
                 break         
             break
+        print(term.noormal,term.clear)
         return login()
     """ -------------------Def's de erro!!!------------------------"""
     def erroNome():
-        print('\nDigite um nome válido!')
+        print(term.clear)
+        print(f'{term.red}\nDigite um nome válido!{term.lightblue}')
+        time.sleep(3)
 
     def erroCPF():
-        print('\nDigite um CPF valido!')
+        print(term.clear)
+        print(f'{term.red}\nDigite um CPF valido!{term.lightblue}')
+        time.sleep(3)
     
     def erro_crm():
-        print('\nDigite um CRM válido!')
+        print(term.clear)
+        print(f'{term.red}\nDigite um CRM válido!{term.lightblue}')
+        time.sleep(3)
         
     def erroTelefone():
-        print('\nDigite um telefone Válido!')
+        print(term.clear)
+        print(f'{term.red}\nDigite um telefone Válido!{term.lightblue}')
+        time.sleep(3)
 
     def erroEmail():
-        print('\nDigite um E-Mail Válido!')
+        print(term.clear)
+        print(f'{term.red}\nDigite um E-Mail Válido!{term.lightblue}')
+        time.sleep(3)
     
     def erroSenha():
-        print('\nAs senhas não coincidem!\nDigite novamente...')
+        print(term.clear)
+        print(f'{term.red}\nAs senhas não coincidem!\nDigite novamente...{term.lightblue}')
+        time.sleep(3)
 
 
     entradaDeDados()
