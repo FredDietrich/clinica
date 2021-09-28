@@ -5,31 +5,8 @@ import datetime as dt
 from dateutil.relativedelta import relativedelta
 import calendar, sqlite3
 from blessed import Terminal
-import itertools, getpass
-import sys, time, locale
-locale.setLocale(locale.LC_ALL, 'pt_BR')
-def spinner(granularity):
-    """Wraps a function in an ASCII spinner display loop. granularity
-    represents the number of times the function should be called
-    before moving the spinner."""
-    spinner_chars = itertools.cycle("\|/-")
-    def make_spinner(f):
-        calls = 0        
-        def g(*args, **kwargs):
-            nonlocal calls
-            nonlocal granularity
-            result = f(*args, **kwargs)
-            if calls == 0:
-                sys.stdout.write("\b" + next(spinner_chars))
-                sys.stdout.flush()
-            calls = (calls + 1) % granularity
-            return result
-        return g
-    return make_spinner
-
-@spinner(10)
-def girador():
-    time.sleep(.01)
+import getpass
+import time
 
 #setando variaveis de uso de varios modulos
 term = Terminal()
@@ -114,8 +91,6 @@ def logado(clinica):
                 time.sleep(3)
                 print(term.clear)
                 print('Usuário ou senha inválidos!')   
-
-# se tiver / crm se nao medico
 
 # exibe o menu independente da quantidade de opções
 def menu(lista):
@@ -476,7 +451,7 @@ def cadastros():#26092021
                 entradaDeDados()
                 break         
             break
-        print(term.noormal,term.clear)
+        print(term.normal,term.clear)
         return login()
     """ -------------------Def's de erro!!!------------------------"""
     def erroNome():
@@ -535,7 +510,7 @@ def leiaAnoMes(querMes = True):
         else:
             return ano, mes
 
-def agenda(estado):
+def agenda(estado, usuarioLogado):
     #caso o médico esteja gerando uma nova agenda
     if(estado == 'criando'):
         consultasA = []
@@ -624,13 +599,13 @@ def agenda(estado):
                 if(str(x[0][8:10]) == i):
                     dia.append(x)
             consultasA.append(dia)
-        agendaCrud(consultasA, mes, ano, dias, estado) #Chama o CRUD da agenda com a agenda criada a partir do mês e ano inseridos
+        agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado) #Chama o CRUD da agenda com a agenda criada a partir do mês e ano inseridos
 
     #caso o médico esteja editando a sua agenda   
-    elif(estado == 'editando' or estado == 'exibindo'):
+    elif(estado == 'editando' or estado == 'exibindo' or estado == 'marcando'):
         consultasA = []
         select = 'select * from agenda where id_medico = ?'
-        value = 1,
+        value = usuarioLogado[0],
         cursor.execute(select, value)
         response = cursor.fetchall()
         if len(response) == 0:
@@ -716,8 +691,13 @@ INSIRA UM DOS ANOS ABAIXO PARA ACESSAR A AGENDA
                     esseHorario.append(datetime.strftime(pedaco[4], '%Y-%m-%d %H:%M:%S'))
                     esseDia.append(esseHorario)
                 consultasFormatada.append(esseDia)
-            if(estado == 'exibindo'):
-                return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado)
+            id_medico = consultasA[qualAno-1][qualMes-1][0][0][2] 
+            print(id_medico)
+            #caso estiver exibindo ou marcando não precisa exibir menu de editar e deletar
+            if(estado == 'exibindo' or estado == 'marcando'):
+                print(estado)
+                return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado, usuarioLogado, id_medico)
+            
             print(f"""
 {term.blue}1 {term.lightblue}- Editar esse mês
 {term.blue}2 {term.lightblue}- Deletar esse mês
@@ -727,7 +707,7 @@ INSIRA UM DOS ANOS ABAIXO PARA ACESSAR A AGENDA
             if(opcaoEditarAgenda == 3):
                 return 0
             elif(opcaoEditarAgenda == 1):
-                return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado) #Chama o CRUD da agenda com a agenda a editar trazida do banco de dados
+                return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado, usuarioLogado) #Chama o CRUD da agenda com a agenda a editar trazida do banco de dados
             elif(opcaoEditarAgenda == 2):
                 sqlDeleteAgenda = 'delete from agenda where dataInicioConsulta like ?'
                 valuesDeleteAgenda = (str(ano)+'-'+str(mes)+'%'), 
@@ -736,10 +716,11 @@ INSIRA UM DOS ANOS ABAIXO PARA ACESSAR A AGENDA
                 return 0
             else:
                 print('Insira uma opção válida!')
-                return agenda(estado)
+                return agenda(estado, usuarioLogado)
 
 #Função de métodos CRUD da agenda, aqui apenas leitura e edição
-def agendaCrud(consultasA, mes, ano, dias, estado):
+def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None):
+    print(estado)
     while True:
         problema = ''
         print(f"""{term.green}
@@ -752,7 +733,6 @@ def agendaCrud(consultasA, mes, ano, dias, estado):
     ---------------------------------------------------
             {problema}{term.normal}
                 """)      
-
     #EXIBE UM CALENDARIO PARA O MEDICO VER OS DIAS   
         print(term.lightblue , calendar.month(theyear=ano, themonth=mes))
         problema = ''
@@ -770,24 +750,33 @@ def agendaCrud(consultasA, mes, ano, dias, estado):
                 for horario in dia:
                     if(estado == 'criando'):
                         sqlAgenda = 'INSERT INTO agenda VALUES(null, null, ?, ?, ?)'
-                        valoresAgenda = (1, horario[0], horario[1])
+                        valoresAgenda = (usuarioLogado[0], horario[0], horario[1])
                         cursor.execute(sqlAgenda, valoresAgenda)
                         banco.commit()
-                        girador()
+                        header(f'{term.clear}Salvando alterações...')
+                        print()
             break
         elif(opcao in dias or '0' + opcao in dias):
             print()
             for x in consultasA:
-                if(str(x[0][0][8:10]) == str(opcao)):
+                if(str(x[0][0][8:10]) == str(opcao) or str(x[0][0][8:10]) == '0' + str(opcao)):
                     ili = 0
+                    disponiveis = []
+                    indisponiveis = []
                     for i in x:
-                        print(f'{term.blue}{ili + 1}{term.lightblue}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
-                        ili+=1
-                    print()
-                elif(str(x[0][0][8:10]) == '0' + str(opcao)):
-                    ili = 0
-                    for i in x:
-                        print(f'{term.blue}{ili + 1}{term.lightblue}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
+                        if(estado != 'marcando'):
+                            print(f'{term.blue}{ili + 1}{term.lightblue}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
+                        else:
+                            sqlLivre = 'select id_paciente from agenda where dataInicioConsulta = ?'
+                            valLivre = i[0],
+                            temPaciente = len(cursor.fetchall())
+                            sqlMedico = 'select * from medico where id_medico = ?'
+                            cursor.execute(sqlMedico, (id_medico,))
+                            medico = cursor.fetchall()[0]
+                            if(temPaciente == 0):
+                                print(f'{term.blue}{ili + 1}{term.lightblue}: {i[0][11:]} - {i[1][11:]}; Médico: {medico[1]}; Disponível;')
+                            else:
+                                print(f'{term.grey}{ili + 1}: {i[0][11:]} - {i[1][11:]}; Médico: {medico[1]}; Indisponível;')
                         ili+=1
                     print()
             #SUBMENU COM HORARIOS
@@ -908,8 +897,10 @@ def agendaCrud(consultasA, mes, ano, dias, estado):
                     else: 
                         print('Insira um horário dentre os listados.')
                         continue
-            else: 
+            elif estado == 'exibindo': 
                 input('Pressione qualquer tecla para continuar...')
+            elif estado == 'marcando': 
+                input('Pressione')
         else:
             problema = 'Insira um dia que esta agendado.'
 

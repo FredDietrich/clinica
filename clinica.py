@@ -17,16 +17,16 @@ def clinica(logado=False):
                     resposta = menuAgenda(['Criar agenda','Listar','Editar','Sair']) # listas as opções do submenu da agenda
                     if resposta == 1:
                         header('Acessando criação de agenda...')
-                        agenda('criando')
+                        agenda('criando', logado)
                     elif resposta == 2:
                         print(term.clear)
                         header('Listando...')
-                        agenda('exibindo')
+                        agenda('exibindo', logado)
                         continue
                     elif resposta == 3:
                         print(term.clear)
                         header('Acessando edição de agenda...')
-                        agenda('editando')
+                        agenda('editando', logado)
                     elif resposta == 4:
                         header(f'{term.red}Saindo.. {term.normal}')
                         continue
@@ -72,7 +72,8 @@ def clinica(logado=False):
                     resposta = menuAgenda(['Agendar uma consulta', 'Editar uma consulta agendada', 'Sair'])
                     if(resposta == 1):
                         header('Acessando agendamento de consulta...')
-                        input()
+                        print(logado)
+                        agenda('marcando', logado)
                     elif(resposta == 2):
                         header('Acessando edição de agendamento de consulta...')    
                         input()
