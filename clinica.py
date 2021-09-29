@@ -12,10 +12,13 @@ def clinica(logado=False):
             resposta = menu(['Cadastros','Agendar','Consultar','Arquivos','Sair']) #lista das opçoes do menu principal
             if('/' in logado[2]):
                 if resposta == 1:
+                    print(term.clear)
                     input('Nada por aqui, pressione qualquer tecla para sair... ')
                 elif resposta == 2:
+                    print(term.clear)
                     resposta = menuAgenda(['Criar agenda','Listar','Editar','Sair']) # listas as opções do submenu da agenda
                     if resposta == 1:
+                        print(term.clear)
                         header('Acessando criação de agenda...')
                         agenda('criando', logado)
                     elif resposta == 2:
@@ -34,6 +37,7 @@ def clinica(logado=False):
                         header('Opção Inválida!')              
 
                 elif resposta == 3:
+                    print(term.clear)
                     resposta = consultar(['Consultar', 'Sair']) # listas as opções do submenu consultar
                     if resposta == 1:
                         header('Consultando...')
@@ -44,6 +48,7 @@ def clinica(logado=False):
                         header('Opção Inválida!')        
 
                 elif resposta == 4:
+                    print(term.clear)
                     resposta = arquivos(['Anexar arquivos', 'Download de Arquivos','Sair']) # listas as opções do submenu de arquivos
                     if resposta == 1:
                         header('Arquivando...')
@@ -56,24 +61,32 @@ def clinica(logado=False):
                         header('Opção Inválida!')           
                     
                 elif resposta == 5:
-                    #header('Saindo... Good Bye!')
+                    print(term.clear)
                     respostaSaida = leiaInt('Quer sair do sistema ou do usuário? [1 - Usuario, 2 - Sistema]: ')
                     if(respostaSaida == 1):
                         clinica()
                     else:
+                        header('Saindo... Good Bye!')
+                        time.sleep(2)
                         exit()
                 else:
                     header('Digite uma opção valida!')
                 sleep(2)  
             else: 
                 if resposta == 1:
+                    print(term.clear)
                     input('Nada por aqui, pressione qualquer tecla para sair... ')
                 elif resposta == 2:
+                    print(term.clear)
                     resposta = menuAgenda(['Agendar uma consulta', 'Editar uma consulta agendada', 'Sair'])
                     if(resposta == 1):
+                        print(term.clear)
                         header('Acessando agendamento de consulta...')
+                        time.sleep(0.5)
+                        print(term.clear)
                         agenda('marcando', logado)
                     elif(resposta == 2):
+                        print(term.clear)
                         header('Acessando edição de agendamento de consulta...')    
                         input()
                     elif(resposta == 3):
@@ -81,16 +94,18 @@ def clinica(logado=False):
                     else:
                         header('Opção Inválida')
                 elif resposta == 3:
-                        resposta = consultar(['Consultar', 'Sair']) # listas as opções do submenu consultar
-                        if resposta == 1:
-                            header('Consultando...')
-                        elif resposta == 2:
-                            header('Saindo...')
-                            break
-                        else:
-                            header('Opção Inválida!')        
+                    print(term.clear)
+                    resposta = consultar(['Consultar', 'Sair']) # listas as opções do submenu consultar
+                    if resposta == 1:
+                        header('Consultando...')
+                    elif resposta == 2:
+                        header('Saindo...')
+                        break
+                    else:
+                        header('Opção Inválida!')        
 
                 elif resposta == 4:
+                    print(term.clear)
                     resposta = arquivos(['Anexar arquivos', 'Download de Arquivos','Sair']) # listas as opções do submenu de arquivos
                     if resposta == 1:
                         header('Arquivando...')
@@ -103,13 +118,16 @@ def clinica(logado=False):
                         header('Opção Inválida!')           
                     
                 elif resposta == 5:
-                    #header('Saindo... Good Bye!')
+                    print(term.clear)
                     respostaSaida = leiaInt('Quer sair do sistema ou do usuário? [1 - Usuario, 2 - Sistema]: ')
                     if(respostaSaida == 1):
                         clinica()
                     else:
+                        header('Saindo... Good Bye!')
+                        time.sleep(2)
                         exit()
                 else:
                     header('Digite uma opção valida!')
                 sleep(2)  
-clinica()
+if __name__ == '__main__':
+    clinica()

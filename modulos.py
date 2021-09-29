@@ -586,13 +586,22 @@ def puxaAgendaBanco(usuarioLogado, estado):
             esseMedicoAnosDias.append(dias)
             agendasMedicos.append(agenda)
             anosDias.append(esseMedicoAnosDias)
-        input()
         consultasA = agendasMedicos[:]
-        indice = 1
-        for nome in nomesMedico:
-            print(f'{indice}: {nome}; Este médico', 'possui horários livres.' if quantosLivreMedicos[indice-1] > 0 else 'não possui horários livres.')
-            indice += 1
-        id_medico = leiaInt('Insira uma opção de médico: ')
+        indisponiveis = []
+        while True:
+            indice = 1
+            header(f'Escolha de médico: ')
+            for nome in nomesMedico:
+                print(f'{term.blue}{indice}{term.normal}: {term.green}{nome}; Este médico possui horários livres.' if quantosLivreMedicos[indice-1] > 0 else f'{term.red}{indice}: {nome};{term.grey} Este médico {term.red}não{term.gray} possui horários livres.', term.normal)
+                if quantosLivreMedicos[indice-1] > 0:
+                    indisponiveis.append(indice-1)
+                indice += 1
+            id_medico = leiaInt('Insira uma opção de médico: ')
+            if(id_medico in indisponiveis):
+                print(term.clear)
+                print(term.red, 'Por favor insira um médico que tenha ao menos um horário disponível!', term.normal)
+                continue
+            break
         consultasA = consultasA[id_medico-1]
         anos = anosDias[id_medico-1][0]
         dias = anosDias[id_medico-1][1]
@@ -758,19 +767,13 @@ def agenda(estado, usuarioLogado):
 
 #Função de métodos CRUD da agenda, aqui apenas leitura e edição
 def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None):
-    print(estado)
     while True:
-        problema = ''
-        print(f"""{term.green}
-    ---------------------------------------------------
-    -- {estado.upper()} AGENDA PARA O MES {mes} DO ANO {ano} ---
-    ---------------------------------------------------
-    -- INSIRA O DIA PARA ACESSAR OS HORARIOS        ---
-    ---------------------------------------------------
-    -- DIGITE SAIR PARA SAIR DA AGENDA ----------------
-    ---------------------------------------------------
-            {problema}{term.normal}
-                """)      
+        print(term.clear)
+        problema = ''    
+        header(f'{term.green}{estado.upper()} AGENDA PARA O MÊS {mes} DO ANO {ano}')
+        header(f'INSIRA O DIA PARA ACESSAR OS HORÁRIOS')
+        header('DIGITE SAIR PARA SAIR DA AGENDA')
+        header(f'{problema}{term.normal}')
     #EXIBE UM CALENDARIO PARA O MEDICO VER OS DIAS   
         print(term.lightblue , calendar.month(theyear=ano, themonth=mes))
         problema = ''
@@ -811,17 +814,19 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                         elif estado == 'marcando':
                             if(ili in horariosConsulta):
                                 indexAtual = horariosConsulta.index(ili)
-                                sqlLivre = 'select id_paciente from agenda where dataInicioConsulta = ?'
-                                valLivre = i[0],
+                                sqlLivre = 'select id_paciente from agenda where dataInicioConsulta = ? and id_medico = ?'
+                                valLivre = i[0], id_medico
                                 cursor.execute(sqlLivre, valLivre)
                                 temPaciente = cursor.fetchall()[0][0]
                                 sqlMedico = 'select * from medico where id_medico = ?'
                                 cursor.execute(sqlMedico, (id_medico,))
                                 medico = cursor.fetchall()[0]
                                 if(temPaciente == None):
-                                    print(f'{term.blue}{indexAtual + 1}{term.lightblue}: {i[0][11:]} - {i[1][11:]}; Médico: {medico[1]}; Disponível;')
+                                    disponiveis.append(indexAtual+1)
+                                    print(f'{term.blue}{indexAtual + 1}{term.lightblue}: {i[0][11:]} - {i[1][11:]}; Disponível;')
                                 else:
-                                    print(f'{term.grey}{indexAtual + 1}: {i[0][11:]} - {i[1][11:]}; Médico: {medico[1]}; Indisponível;')
+                                    indisponiveis.append(indexAtual+1)
+                                    print(f'{term.grey}{indexAtual + 1}: {i[0][11:]} - {i[1][11:]}; Indisponível;')
                         ili+=1
                     print()
             #SUBMENU COM HORARIOS
@@ -943,10 +948,23 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                     else: 
                         print('Insira um horário dentre os listados.')
                         continue
-            elif estado == 'exibindo' or estado == 'marcando': 
+            elif estado == 'exibindo': 
                 input('Pressione qualquer tecla para continuar...')
             elif estado == 'marcando': 
-                input('Pressione')
+                print()
+                horarioEscolhido = leiaInt('Insira um dos horários listados para consultar, ou 0 para sair: ')
+                sqlAgendaPaciente = 'update agenda set id_paciente = ? where dataInicioConsulta = ? and id_medico = ?'
+                if(horarioEscolhido == 0):
+                    continue
+                if(horarioEscolhido in disponiveis):
+                    for dia in consultasA: #itera os dias das consultas para encontrar a que tem o dia que o paciente selecionou lá no calendário (opcao)
+                        if(str(dia[0][0][8:10]) == str(opcao) or str(dia[0][0][8:10]) == '0' + str(opcao)):
+                            valuesAgendaPaciente = usuarioLogado[0], dia[0][0], id_medico
+                            cursor.execute(sqlAgendaPaciente, valuesAgendaPaciente)
+                            banco.commit()
+                    header('Consulta agendada com sucesso!')
+                    break
+
         else:
             problema = 'Insira um dia que esta agendado.'
 
