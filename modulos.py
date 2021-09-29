@@ -39,7 +39,7 @@ def header(txt):
     print(txt.center(50))
     print(linha())
 # faz a chamada para o login principal
-def login(clinica=False):
+def login(clinica):
     header('Bem vindo a Clinica Tech Connect!')
     loginOpcao = input('Digite 1 para login.\n\nDigite 2 para Cadastro.\n\nInforme sua opção: ')
     while True:
