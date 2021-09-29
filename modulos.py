@@ -47,7 +47,7 @@ def login(clinica):
                 logado(clinica)
                 break
             elif loginOpcao == '2':
-                cadastros()
+                cadastros(clinica)
             else:
                 print(term.clear, 'Opção Invalida! Tente novamente')
                 login(clinica)
@@ -152,7 +152,7 @@ def arquivos(lista):
 
 # -- CADASTROS A PARTIR DAQUI -- #
 
-def cadastros():#26092021
+def cadastros(clinica):#26092021
 
     lista_de_regioes_crm = ['/AC','/AL','/AP','/AM','/BA','/CE','/DF',
                             '/ES','/GO','/MA','/MT','/MS','/MG','/PA',
@@ -321,7 +321,7 @@ def cadastros():#26092021
             banco.commit()
             print(term.normal,term.clear)
             break
-        return login()
+        return login(clinica)
 
     def cadastroPaciente(): # Funcional
         condicao = 0
