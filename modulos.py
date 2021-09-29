@@ -510,6 +510,131 @@ def leiaAnoMes(querMes = True):
         else:
             return ano, mes
 
+def agrupaConsultas(medico):
+    select = 'select * from agenda where id_medico = ?'
+    value = medico,
+    cursor.execute(select, value)
+    response = cursor.fetchall()
+    horarios = []
+    for horario in response:
+        horarios.append(list(horario))
+    for horario in range(len(horarios)):
+        horarios[horario][3] = datetime.strptime(horarios[horario][3], '%Y-%m-%d %H:%M:%S')
+        horarios[horario][4] = datetime.strptime(horarios[horario][4], '%Y-%m-%d %H:%M:%S')
+
+    anos = []
+    for horario in horarios:
+        anos.append(datetime.strftime(horario[3], '%Y'))
+    anos = list(dict.fromkeys(anos))
+    consultasA = []
+    for anoI in anos:
+        ano = []
+        for horario in horarios:
+            if(datetime.strftime(horario[3], '%Y') == anoI):
+                ano.append(horario)
+        consultasA.append(ano)
+
+    agrupadas = []
+    for anoI in consultasA:
+        meses = []
+        for horario in anoI:
+            meses.append(datetime.strftime(horario[3], '%m'))
+        meses = list(dict.fromkeys(meses))
+        meses.sort()
+        mesess = []
+        for mes in meses:
+            esseMes = []
+            dias = []
+            for horario in anoI:
+                if(datetime.strftime(horario[3], '%m') == mes):
+                    dias.append(datetime.strftime(horario[3], '%d'))
+            dias = list(dict.fromkeys(dias))
+            dias.sort()
+            for diaI in dias:
+                dia = []
+                for horario in horarios:
+                    if(datetime.strftime(horario[3], '%d') == diaI and datetime.strftime(horario[3], '%m') == mes):
+                        dia.append(horario)
+                esseMes.append(dia)
+            mesess.append(esseMes)
+        agrupadas.append(mesess)
+    return (agrupadas, anos, dias)
+
+def puxaAgendaBanco(usuarioLogado, estado):
+    sqlIdsMedico = 'select distinct id_medico from agenda;'
+    cursor.execute(sqlIdsMedico)
+    idsMedico = [id[0] for id in cursor.fetchall()]
+    if(len(idsMedico)==0):
+        header('Não foram encontradas agendas!')
+        time.sleep(2)
+        return 0
+    if estado == 'marcando':
+        nomesMedico = []
+        agendasMedicos = []
+        quantosLivreMedicos = []
+        anosDias = []
+        sqlQuantosLivre = 'select count(id_agenda) from agenda where id_paciente is null and id_medico = ?;'
+        sqlMedico = 'select nome from medico where id_medico = ?'
+        for medico in idsMedico:
+            esseMedicoAnosDias = []
+            cursor.execute(sqlMedico, (medico,))
+            nomesMedico.append(cursor.fetchall()[0][0])
+            cursor.execute(sqlQuantosLivre, (medico,))
+            quantosLivreMedicos.append(cursor.fetchall()[0][0])
+            agenda, anos, dias = agrupaConsultas(medico) 
+            esseMedicoAnosDias.append(anos)
+            esseMedicoAnosDias.append(dias)
+            agendasMedicos.append(agenda)
+            anosDias.append(esseMedicoAnosDias)
+        input()
+        consultasA = agendasMedicos[:]
+        indice = 1
+        for nome in nomesMedico:
+            print(f'{indice}: {nome}; Este médico', 'possui horários livres.' if quantosLivreMedicos[indice-1] > 0 else 'não possui horários livres.')
+            indice += 1
+        id_medico = leiaInt('Insira uma opção de médico: ')
+        consultasA = consultasA[id_medico-1]
+        anos = anosDias[id_medico-1][0]
+        dias = anosDias[id_medico-1][1]
+    else:
+        consultasA, anos, dias = agrupaConsultas(usuarioLogado[0])
+    while True:
+        print(f"""
+{estado.upper()} AGENDA
+INSIRA UM DOS ANOS ABAIXO PARA ACESSAR A AGENDA
+        """)
+        i = 1
+        for ano in anos:
+            print(term.blue, f'{i}{term.lightblue}: {ano}', term.normal)
+            i+=1
+        print()
+        qualAno = leiaInt('Insira a opção de um dos anos: ')
+        anoAtual = int(anos[qualAno-1])
+        print('Meses disponiveis: \n')
+        mesesDisponiveis = []
+        for mes in consultasA[qualAno - 1]:
+            mesesDisponiveis.append(datetime.strftime(mes[0][0][3], '%m'))
+        mesesDisponiveis = list(dict.fromkeys(mesesDisponiveis))
+        iMes = 1
+        for mes in mesesDisponiveis:
+            print(f'{term.blue}{iMes}{term.lightblue}: {mes}', term.normal)
+            iMes += 1
+        print()
+        qualMes = leiaInt('Insira uma opção de um mês dentre os disponíveis: ')
+        mesAtual = int(mesesDisponiveis[qualMes - 1])
+        consultasFormatada = []
+        for dia in consultasA[qualAno-1][qualMes-1]:
+            esseDia = []
+            for pedaco in dia:
+                esseHorario = []
+                esseHorario.append(datetime.strftime(pedaco[3], '%Y-%m-%d %H:%M:%S'))
+                esseHorario.append(datetime.strftime(pedaco[4], '%Y-%m-%d %H:%M:%S'))
+                esseDia.append(esseHorario)
+            consultasFormatada.append(esseDia)
+        id_medico = consultasA[qualAno-1][qualMes-1][0][0][2]
+        print('ID MEDICO:',id_medico)
+        return (consultasFormatada, mesAtual, anoAtual, dias, id_medico)
+
 def agenda(estado, usuarioLogado):
     #caso o médico esteja gerando uma nova agenda
     if(estado == 'criando'):
@@ -602,121 +727,34 @@ def agenda(estado, usuarioLogado):
         agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado) #Chama o CRUD da agenda com a agenda criada a partir do mês e ano inseridos
 
     #caso o médico esteja editando a sua agenda   
-    elif(estado == 'editando' or estado == 'exibindo' or estado == 'marcando'):
-        consultasA = []
-        select = 'select * from agenda where id_medico = ?'
-        value = usuarioLogado[0],
-        cursor.execute(select, value)
-        response = cursor.fetchall()
-        if len(response) == 0:
-            header('''  
-    Não foi encontrada nenhuma agenda!
-''')
-            time.sleep(2)
+    elif(estado == 'editando' or estado == 'exibindo' or estado == 'marcando'): 
+        try:
+            consultasFormatada, mesAtual, anoAtual, dias, id_medico = puxaAgendaBanco(usuarioLogado, estado)
+        except:
             return 0
-        horarios = []
-        for horario in response:
-            horarios.append(list(horario))
-        for horario in range(len(horarios)):
-            horarios[horario][3] = datetime.strptime(horarios[horario][3], '%Y-%m-%d %H:%M:%S')
-            horarios[horario][4] = datetime.strptime(horarios[horario][4], '%Y-%m-%d %H:%M:%S')
-
-        anos = []
-        for horario in horarios:
-            anos.append(datetime.strftime(horario[3], '%Y'))
-        anos = list(dict.fromkeys(anos))
-        consultasA = []
-        for anoI in anos:
-            ano = []
-            for horario in horarios:
-                if(datetime.strftime(horario[3], '%Y') == anoI):
-                    ano.append(horario)
-            consultasA.append(ano)
-
-        agrupadas = []
-        for anoI in consultasA:
-            meses = []
-            for horario in anoI:
-                meses.append(datetime.strftime(horario[3], '%m'))
-            meses = list(dict.fromkeys(meses))
-            meses.sort()
-            mesess = []
-            for mes in meses:
-                esseMes = []
-                dias = []
-                for horario in anoI:
-                    if(datetime.strftime(horario[3], '%m') == mes):
-                        dias.append(datetime.strftime(horario[3], '%d'))
-                dias = list(dict.fromkeys(dias))
-                dias.sort()
-                for diaI in dias:
-                    dia = []
-                    for horario in horarios:
-                        if(datetime.strftime(horario[3], '%d') == diaI and datetime.strftime(horario[3], '%m') == mes):
-                            dia.append(horario)
-                    esseMes.append(dia)
-                mesess.append(esseMes)
-            agrupadas.append(mesess)
-        consultasA = agrupadas[:]
-        while True:
-            print(f"""
-{estado.upper()} AGENDA
-INSIRA UM DOS ANOS ABAIXO PARA ACESSAR A AGENDA
-            """)
-            i = 1
-            for ano in anos:
-                print(term.blue, f'{i}{term.lightblue}: {ano}', term.normal)
-                i+=1
-            print()
-            qualAno = leiaInt('Insira a opção de um dos anos: ')
-            anoAtual = int(anos[qualAno-1])
-            print('Meses disponiveis: \n')
-            mesesDisponiveis = []
-            for mes in consultasA[qualAno - 1]:
-                mesesDisponiveis.append(datetime.strftime(mes[0][0][3], '%m'))
-            mesesDisponiveis = list(dict.fromkeys(mesesDisponiveis))
-            iMes = 1
-            for mes in mesesDisponiveis:
-                print(f'{term.blue}{iMes}{term.lightblue}: {mes}', term.normal)
-                iMes += 1
-            print()
-            qualMes = leiaInt('Insira uma opção de um mês dentre os disponíveis: ')
-            mesAtual = int(mesesDisponiveis[qualMes - 1])
-            consultasFormatada = []
-            for dia in consultasA[qualAno-1][qualMes-1]:
-                esseDia = []
-                for pedaco in dia:
-                    esseHorario = []
-                    esseHorario.append(datetime.strftime(pedaco[3], '%Y-%m-%d %H:%M:%S'))
-                    esseHorario.append(datetime.strftime(pedaco[4], '%Y-%m-%d %H:%M:%S'))
-                    esseDia.append(esseHorario)
-                consultasFormatada.append(esseDia)
-            id_medico = consultasA[qualAno-1][qualMes-1][0][0][2] 
-            print(id_medico)
-            #caso estiver exibindo ou marcando não precisa exibir menu de editar e deletar
-            if(estado == 'exibindo' or estado == 'marcando'):
-                print(estado)
-                return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado, usuarioLogado, id_medico)
-            
-            print(f"""
+        #caso estiver exibindo ou marcando não precisa exibir menu de editar e deletar
+        if(estado == 'exibindo' or estado == 'marcando'):
+            return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado, usuarioLogado, id_medico)
+        
+        print(f"""
 {term.blue}1 {term.lightblue}- Editar esse mês
 {term.blue}2 {term.lightblue}- Deletar esse mês
 {term.blue}3 {term.lightblue}- Sair
-            """, term.normal)   
-            opcaoEditarAgenda = leiaInt('Insira uma opção dentre as listadas acima: ')
-            if(opcaoEditarAgenda == 3):
-                return 0
-            elif(opcaoEditarAgenda == 1):
-                return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado, usuarioLogado) #Chama o CRUD da agenda com a agenda a editar trazida do banco de dados
-            elif(opcaoEditarAgenda == 2):
-                sqlDeleteAgenda = 'delete from agenda where dataInicioConsulta like ?'
-                valuesDeleteAgenda = (str(ano)+'-'+str(mes)+'%'), 
-                cursor.execute(sqlDeleteAgenda, valuesDeleteAgenda)
-                banco.commit()
-                return 0
-            else:
-                print('Insira uma opção válida!')
-                return agenda(estado, usuarioLogado)
+        """, term.normal)   
+        opcaoEditarAgenda = leiaInt('Insira uma opção dentre as listadas acima: ')
+        if(opcaoEditarAgenda == 3):
+            return 0
+        elif(opcaoEditarAgenda == 1):
+            return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado, usuarioLogado) #Chama o CRUD da agenda com a agenda a editar trazida do banco de dados
+        elif(opcaoEditarAgenda == 2):
+            sqlDeleteAgenda = 'delete from agenda where dataInicioConsulta like ?'
+            valuesDeleteAgenda = (str(anoAtual)+'-'+str(mesAtual)+'%'), 
+            cursor.execute(sqlDeleteAgenda, valuesDeleteAgenda)
+            banco.commit()
+            return 0
+        else:
+            print('Insira uma opção válida!')
+            return agenda(estado, usuarioLogado)
 
 #Função de métodos CRUD da agenda, aqui apenas leitura e edição
 def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None):
@@ -750,6 +788,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                 for horario in dia:
                     if(estado == 'criando'):
                         sqlAgenda = 'INSERT INTO agenda VALUES(null, null, ?, ?, ?)'
+                        print(usuarioLogado)
                         valoresAgenda = (usuarioLogado[0], horario[0], horario[1])
                         cursor.execute(sqlAgenda, valoresAgenda)
                         banco.commit()
@@ -757,26 +796,32 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                         print()
             break
         elif(opcao in dias or '0' + opcao in dias):
-            print()
+            if(estado == 'marcando'):
+                print(term.yellow, '\nAs consultas costumam durar 30 min, podendo se estender até o início do próximo horário.', term.normal)
             for x in consultasA:
                 if(str(x[0][0][8:10]) == str(opcao) or str(x[0][0][8:10]) == '0' + str(opcao)):
                     ili = 0
                     disponiveis = []
                     indisponiveis = []
+                    horariosConsulta = (0, 2, 4, 5, 7, 9, 11, 13)
+                    print('')
                     for i in x:
                         if(estado != 'marcando'):
                             print(f'{term.blue}{ili + 1}{term.lightblue}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
-                        else:
-                            sqlLivre = 'select id_paciente from agenda where dataInicioConsulta = ?'
-                            valLivre = i[0],
-                            temPaciente = len(cursor.fetchall())
-                            sqlMedico = 'select * from medico where id_medico = ?'
-                            cursor.execute(sqlMedico, (id_medico,))
-                            medico = cursor.fetchall()[0]
-                            if(temPaciente == 0):
-                                print(f'{term.blue}{ili + 1}{term.lightblue}: {i[0][11:]} - {i[1][11:]}; Médico: {medico[1]}; Disponível;')
-                            else:
-                                print(f'{term.grey}{ili + 1}: {i[0][11:]} - {i[1][11:]}; Médico: {medico[1]}; Indisponível;')
+                        elif estado == 'marcando':
+                            if(ili in horariosConsulta):
+                                indexAtual = horariosConsulta.index(ili)
+                                sqlLivre = 'select id_paciente from agenda where dataInicioConsulta = ?'
+                                valLivre = i[0],
+                                cursor.execute(sqlLivre, valLivre)
+                                temPaciente = cursor.fetchall()[0][0]
+                                sqlMedico = 'select * from medico where id_medico = ?'
+                                cursor.execute(sqlMedico, (id_medico,))
+                                medico = cursor.fetchall()[0]
+                                if(temPaciente == None):
+                                    print(f'{term.blue}{indexAtual + 1}{term.lightblue}: {i[0][11:]} - {i[1][11:]}; Médico: {medico[1]}; Disponível;')
+                                else:
+                                    print(f'{term.grey}{indexAtual + 1}: {i[0][11:]} - {i[1][11:]}; Médico: {medico[1]}; Indisponível;')
                         ili+=1
                     print()
             #SUBMENU COM HORARIOS
@@ -818,9 +863,10 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                             if(opcaoDentroDeEdit == '3'):
                                                 break
                                             elif(opcaoDentroDeEdit == '1'):
-                                                sqlDelete = 'delete from agenda where dataInicioConsulta = ? and dataFimConsulta = ?'
-                                                valuesDelete = tuple(consultasA[iConsultas].pop(opcaoEdit-1))
-                                                cursor.execute(sqlDelete, valuesDelete)
+                                                sqlDelete = 'delete from agenda where dataInicioConsulta = ? and dataFimConsulta = ? and id_medico = ?'
+                                                valuesDelete = consultasA[iConsultas].pop(opcaoEdit-1)
+                                                valuesDelete.append(usuarioLogado[0])
+                                                cursor.execute(sqlDelete, tuple(valuesDelete))
                                                 banco.commit()
                                                 break
                                             elif(opcaoDentroDeEdit == '2'):
@@ -882,8 +928,8 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                                     continue
                                                                 else:
                                                                     if(estado == 'editando'):
-                                                                        sqlUpdate = 'update agenda set dataInicioConsulta = ?, dataFimConsulta = ? where dataInicioConsulta = ?'     
-                                                                        valuesUpdate = (datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S'), consultasA[iConsultas][opcaoEdit-1][0])
+                                                                        sqlUpdate = 'update agenda set dataInicioConsulta = ?, dataFimConsulta = ? where dataInicioConsulta = ? and id_medico = ?'     
+                                                                        valuesUpdate = (datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S'), consultasA[iConsultas][opcaoEdit-1][0], usuarioLogado[0])
                                                                         cursor.execute(sqlUpdate, valuesUpdate)
                                                                         banco.commit()                                                               
                                                                     consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
@@ -897,7 +943,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                     else: 
                         print('Insira um horário dentre os listados.')
                         continue
-            elif estado == 'exibindo': 
+            elif estado == 'exibindo' or estado == 'marcando': 
                 input('Pressione qualquer tecla para continuar...')
             elif estado == 'marcando': 
                 input('Pressione')

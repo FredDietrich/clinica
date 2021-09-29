@@ -72,7 +72,6 @@ def clinica(logado=False):
                     resposta = menuAgenda(['Agendar uma consulta', 'Editar uma consulta agendada', 'Sair'])
                     if(resposta == 1):
                         header('Acessando agendamento de consulta...')
-                        print(logado)
                         agenda('marcando', logado)
                     elif(resposta == 2):
                         header('Acessando edição de agendamento de consulta...')    
