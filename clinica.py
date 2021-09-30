@@ -8,7 +8,7 @@ def clinica(logado=False):
         login(clinica)
     else:
         while True:
-            header(f'{term.clear}{term.green}Bem vindo a clínica, {logado[1]}!{term.normal}')
+            header(f'{term.clear}{term.green}Bem vindo à clínica, {logado[1]}!{term.normal}')
             resposta = menu(['Cadastros','Agendar','Consultar','Arquivos','Sair']) #lista das opçoes do menu principal
             if('/' in logado[2]):
                 if resposta == 1:
@@ -62,7 +62,7 @@ def clinica(logado=False):
                     
                 elif resposta == 5:
                     print(term.clear)
-                    respostaSaida = leiaInt('Quer sair do sistema ou do usuário? [1 - Usuario, 2 - Sistema]: ')
+                    respostaSaida = leiaInt('Quer sair do sistema ou do usuário? [1 - Usuário, 2 - Sistema]: ')
                     if(respostaSaida == 1):
                         clinica()
                     else:
@@ -70,7 +70,7 @@ def clinica(logado=False):
                         time.sleep(2)
                         exit()
                 else:
-                    header('Digite uma opção valida!')
+                    header('Digite uma opção válida!')
                 sleep(2)  
             else: 
                 if resposta == 1:
@@ -119,7 +119,7 @@ def clinica(logado=False):
                     
                 elif resposta == 5:
                     print(term.clear)
-                    respostaSaida = leiaInt('Quer sair do sistema ou do usuário? [1 - Usuario, 2 - Sistema]: ')
+                    respostaSaida = leiaInt('Quer sair do sistema ou do usuário? [1 - Usuário, 2 - Sistema]: ')
                     if(respostaSaida == 1):
                         clinica()
                     else:
@@ -127,7 +127,7 @@ def clinica(logado=False):
                         time.sleep(2)
                         exit()
                 else:
-                    header('Digite uma opção valida!')
+                    header('Digite uma opção válida!')
                 sleep(2)  
 if __name__ == '__main__':
     clinica()

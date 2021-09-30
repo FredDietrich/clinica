@@ -19,19 +19,17 @@ def leiaInt(msg):
         try:
             n = int(input(msg))
         except (ValueError, TypeError):
-            print('ERRO: por favor, digite um numero valido.')
+            print('ERRO: por favor, digite um número valido.')
             continue
         except (KeyboardInterrupt):
-            print('Usuario preferiu não digitar esse numero.')
+            print('Usuário preferiu não digitar esse número.')
             return 0
         else:
             return n
 
-
 # imprime as linhas nos menus principais
 def linha(tam=50):
     return "="*tam
-
 
 # imprime os cabeçalhos nos menus e submenus, ou onde essa função for chamada
 def header(txt):
@@ -40,7 +38,7 @@ def header(txt):
     print(linha())
 # faz a chamada para o login principal
 def login(clinica):
-    header('Bem vindo a Clinica Tech Connect!')
+    header('Bem vindo à Clínica Tech Connect!')
     loginOpcao = input('Digite 1 para login.\n\nDigite 2 para Cadastro.\n\nInforme sua opção: ')
     while True:
             if loginOpcao == '1':
@@ -49,7 +47,7 @@ def login(clinica):
             elif loginOpcao == '2':
                 cadastros(clinica)
             else:
-                print(term.clear, 'Opção Invalida! Tente novamente')
+                print(term.clear, 'Opção Inválida! Tente novamente')
                 login(clinica)
                 break
 
@@ -94,54 +92,41 @@ def logado(clinica):
 
 # exibe o menu independente da quantidade de opções
 def menu(lista):
-    header('Menu Principal Clinica Tech Connect!')
+    header('Menu Principal Clínica Tech Connect!')
     c = 1
     for item in lista:
         print(f'{c} - {item}')
         c+= 1
     print(linha())
-    opc = leiaInt('Digite sua Opção: ')
+    opc = leiaInt('Digite uma Opção: ')
     return opc
     
-
-# exibe o submenu de cadastros
-"""
-def cadastro(lista):
-    header('Deseja ajustar um cadastro! Selecione uma opção.')
-    c = 1
-    for item in lista:
-        print(f'{c} - {item}')
-        c+=1
-    print(linha())
-    opc = leiaInt('Digite sua Opção: ')
-    return opc    
-"""
 # exibe o submenu de agenda
 def menuAgenda(lista):
-    header('Bem vindo a sua Agenda')
+    header('Bem vindo à sua Agenda')
     c = 1
     for item in lista:
         print(f'{c} - {item}')
         c+=1
     print(linha())
-    opc = leiaInt('Digite sua Opção: ')
+    opc = leiaInt('Digite uma Opção: ')
     return opc 
 
 
 # exibe o submenu de consultar
 def consultar(lista):
-    header('Seja Bem vindo a video Consulta!')
+    header('Seja Bem vindo à video Consulta!')
     c = 1
     for item in lista:
         print(f'{c} - {item}')
         c+=1
     print(linha())
-    opc = leiaInt('Digite sua Opção: ')
+    opc = leiaInt('Digite uma Opção: ')
     return opc
 
 # exibe o submenu de arquivos
 def arquivos(lista):
-    header('Seja Bem vindo a sua area de arquivos!')
+    header('Seja Bem vindo à sua área de arquivos! (não funcional)')
     c = 1
     for item in lista:
         print(f'{c} - {item}')
@@ -160,50 +145,8 @@ def cadastros(clinica):#26092021
                             '/RO','/RR','/SC','/SP','/SE','/TO']
 
     banco_de_dados_pacientes = [] #Dados dos clientes
-    nome_paciente = None
-    email_paciente = None
-    cpf = None
-    telefone_paciente = None
-    senha_paciente = None
-    """
-                    Banco de dados Paciente
-     _________ _________ _________ _____________ _________
-    | Médico1 | Médico2 | Médico3 | .......     | Médico4 |
-    |_________|_________|_________|_____________|_________|
-   0| Nome    | Nome    | Nome    | .......     | Nome    |
-    |_________|_________|_________|_____________|_________|
-   1| CPF     | CPF     | CPF     | .......     | CPF     |
-    |_________|_________|_________|_____________|_________|
-   2|Telefone |Telefone |Telefone | .......     |Telefone |
-    |_________|_________|_________|_____________|_________|
-   3|Email    |Email    |Email    | .......     |Email    |
-    |_________|_________|_________|_____________|_________|
-    tabela de confecção da lista para orientação..."""
     banco_de_dados_medicos = [] #Dados dos Médicos
-    nome_medico = None
-    email_medico = None
-    crm = None
-    telefone_medico = None
-    senha_medico = None
-    """
-                    Banco de dados Médico
-     _________ _________ _________ _____________ _________
-    | Médico1 | Médico2 | Médico3 | .......     | Médico4 |
-    |_________|_________|_________|_____________|_________|
-   0| Nome    | Nome    | Nome    | .......     | Nome    |
-    |_________|_________|_________|_____________|_________|
-   1| CRM     | CRM     | CRM     | .......     | CRM     |
-    |_________|_________|_________|_____________|_________|
-   2|Telefone |Telefone |Telefone | .......     |Telefone |
-    |_________|_________|_________|_____________|_________|
-   3|Email    |Email    |Email    | .......     |Email    |
-    |_________|_________|_________|_____________|_________|
-    tabela de confecção da lista para orientação..."""
-    
-
     crm_referência = "00000000/PP"
-    cpf_referencia = "000.000.000-00"
-    telefone_referencia = "(51)988888888"
 
     def entradaDeDados():
         condicao = str(input(f'\nOlá deseja realizar um cadastro? {term.blue}[s = Sim ou n = Não]: {term.normal}')).strip().upper()[0]
@@ -219,7 +162,6 @@ def cadastros(clinica):#26092021
                 return login()
         if condicao == "N":
             return login()        
-
 
     def cadastroMedico(): # funcional
         condicao = 0
@@ -351,26 +293,18 @@ def cadastros(clinica):#26092021
             for i in range(len(cpf_string)):
                 if cpf_string[i].isdigit() == True:# Se o valor no índice [i] for numero intera na str CPF
                     cpf = cpf + cpf_string[i]
-                    #print(cpf)
             if len(cpf) != 11:
                 erroCPF()
-                #print('1')
                 continue
             """------------Abaixo os calculos de validação do CPF--------------"""
             for i in range(len(cpf[:-2])):
                 produto1_cpf += int(cpf[i])*(10-i) 
-                #print(produto1_cpf)
             produto1_cpf = 11 - (produto1_cpf % 11)
-            #print(produto1_cpf)
             for i in range(len(cpf[:-2])):
                 produto2_cpf += int(cpf[i])*(11-i)
-                #print(produto2_cpf)
             produto2_cpf = 11 -((produto2_cpf+(produto1_cpf*2)) % 11)
-            #print(produto2_cpf)
             if produto2_cpf > 9:
                 produto2_cpf = 0
-                #print('produto = 0')
-            #print(produto2_cpf)
             if str(cpf[-2:]) == (str(produto1_cpf) + str(produto2_cpf)):
                 sqlTestaCPF = 'SELECT cpf from paciente WHERE cpf = ?'
                 valCPF = cpf, 
@@ -461,7 +395,7 @@ def cadastros(clinica):#26092021
 
     def erroCPF():
         print(term.clear)
-        print(f'{term.red}\nDigite um CPF valido!{term.lightblue}')
+        print(f'{term.red}\nDigite um CPF válido!{term.lightblue}')
         time.sleep(3)
     
     def erro_crm():
@@ -471,7 +405,7 @@ def cadastros(clinica):#26092021
         
     def erroTelefone():
         print(term.clear)
-        print(f'{term.red}\nDigite um telefone Válido!{term.lightblue}')
+        print(f'{term.red}\nDigite um telefone válido!{term.lightblue}')
         time.sleep(3)
 
     def erroEmail():
@@ -484,29 +418,24 @@ def cadastros(clinica):#26092021
         print(f'{term.red}\nAs senhas não coincidem!\nDigite novamente...{term.lightblue}')
         time.sleep(3)
 
-
     entradaDeDados()
-
-
 # -- FIM CADASTROS -- #
 
-
 # -- AGENDA A PARTIR DAQUI -- #
-
 def leiaAnoMes(querMes = True):
     while True:
         try:
-            ano = int(input('Insira o ano para fazer a criacao da agenda: '))
+            ano = int(input('Insira o ano para fazer a criação da agenda: '))
             if querMes:
-                mes = int(input('Insira o mes (1-12) para fazer a criacao da agenda: '))
+                mes = int(input('Insira o mês (1-12) para fazer a criação da agenda: '))
             else: 
                 mes = ''
         except (ValueError, TypeError):
             print('ERRO: por favor, digite um ano e um mês válidos.')
             continue
         except (KeyboardInterrupt):
-            print('Usuario preferiu não digitar esses dados.')
-            exit()
+            print('Usuário preferiu não digitar esses dados.')
+            return 0
         else:
             return ano, mes
 
@@ -521,7 +450,6 @@ def agrupaConsultas(medico):
     for horario in range(len(horarios)):
         horarios[horario][3] = datetime.strptime(horarios[horario][3], '%Y-%m-%d %H:%M:%S')
         horarios[horario][4] = datetime.strptime(horarios[horario][4], '%Y-%m-%d %H:%M:%S')
-
     anos = []
     for horario in horarios:
         anos.append(datetime.strftime(horario[3], '%Y'))
@@ -599,7 +527,7 @@ def puxaAgendaBanco(usuarioLogado, estado):
             id_medico = leiaInt('Insira uma opção de médico: ')
             if(id_medico in indisponiveis):
                 print(term.clear)
-                print(term.red, 'Por favor insira um médico que tenha ao menos um horário disponível!', term.normal)
+                print(term.red, 'Por favor insira um médico que tenha pelo menos um horário disponível!', term.normal)
                 continue
             break
         consultasA = consultasA[id_medico-1]
@@ -619,7 +547,7 @@ INSIRA UM DOS ANOS ABAIXO PARA ACESSAR A AGENDA
         print()
         qualAno = leiaInt('Insira a opção de um dos anos: ')
         anoAtual = int(anos[qualAno-1])
-        print('Meses disponiveis: \n')
+        print('Meses disponíveis: \n')
         mesesDisponiveis = []
         for mes in consultasA[qualAno - 1]:
             mesesDisponiveis.append(datetime.strftime(mes[0][0][3], '%m'))
@@ -641,16 +569,16 @@ INSIRA UM DOS ANOS ABAIXO PARA ACESSAR A AGENDA
                 esseDia.append(esseHorario)
             consultasFormatada.append(esseDia)
         id_medico = consultasA[qualAno-1][qualMes-1][0][0][2]
-        print('ID MEDICO:',id_medico)
         return (consultasFormatada, mesAtual, anoAtual, dias, id_medico)
 
 def agenda(estado, usuarioLogado):
     #caso o médico esteja gerando uma nova agenda
     if(estado == 'criando'):
         consultasA = []
-        ano, mes = leiaAnoMes()
-        #ano = 2021
-        #mes = 10
+        try:
+            ano, mes = leiaAnoMes()
+        except:
+            return 0
         #GERANDO O CALENDARIO/DIAS
         diass = []
         calendario = calendar.Calendar(firstweekday=0)
@@ -747,7 +675,7 @@ def agenda(estado, usuarioLogado):
         
         print(f"""
 {term.blue}1 {term.lightblue}- Editar esse mês
-{term.blue}2 {term.lightblue}- Deletar esse mês
+{term.blue}2 {term.lightblue}- Apagar esse mês
 {term.blue}3 {term.lightblue}- Sair
         """, term.normal)   
         opcaoEditarAgenda = leiaInt('Insira uma opção dentre as listadas acima: ')
@@ -810,7 +738,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                     print('')
                     for i in x:
                         if(estado != 'marcando'):
-                            print(f'{term.blue}{ili + 1}{term.lightblue}: Inicio: {i[0][11:]}; Fim: {i[1][11:]};')
+                            print(f'{term.blue}{ili + 1}{term.lightblue}: Início: {i[0][11:]}; Fim: {i[1][11:]};')
                         elif estado == 'marcando':
                             if(ili in horariosConsulta):
                                 indexAtual = horariosConsulta.index(ili)
@@ -818,9 +746,6 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                 valLivre = i[0], id_medico
                                 cursor.execute(sqlLivre, valLivre)
                                 temPaciente = cursor.fetchall()[0][0]
-                                sqlMedico = 'select * from medico where id_medico = ?'
-                                cursor.execute(sqlMedico, (id_medico,))
-                                medico = cursor.fetchall()[0]
                                 if(temPaciente == None):
                                     disponiveis.append(indexAtual+1)
                                     print(f'{term.blue}{indexAtual + 1}{term.lightblue}: {i[0][11:]} - {i[1][11:]}; Disponível;')
@@ -834,16 +759,16 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                 prob = ''
                 while True:
                     if prob != '':
-                        opcaoEdit = input(f'Insira o {prob} do horario para editar ou "SAIR" para voltar a lista de horarios do mes: ')
+                        opcaoEdit = input(f'Insira o {prob} do horário para editar ou "sair" para voltar a lista de horários do mes: ')
                     else:
-                        opcaoEdit = input(f'Insira o numero do horario para editar ou "SAIR" para voltar a lista de horarios do mes: ')
+                        opcaoEdit = input(f'Insira o número do horário para editar ou "sair" para voltar a lista de horários do mes: ')
                 
-                    if(opcaoEdit == 'sair' or opcaoEdit == 'SAIR'):
+                    if(opcaoEdit.upper() == 'SAIR'):
                         break
                     try:
                         opcaoEdit = int(opcaoEdit)
                     except:
-                        prob = 'NUMERO'
+                        prob = 'NÚMERO'
                         continue
                     if(opcaoEdit >= 1 and opcaoEdit <= ili):
                         iConsultas = 0
@@ -856,13 +781,13 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                         while True:
                                             try:
                                                 print(f"""
-{term.green}Editando: {term.blue}Inicio: {consultasA[iConsultas][opcaoEdit-1][0]} Fim: {consultasA[iConsultas][opcaoEdit-1][1]}
+{term.green}Editando: {term.blue}Início: {consultasA[iConsultas][opcaoEdit-1][0]} Fim: {consultasA[iConsultas][opcaoEdit-1][1]}
 {term.normal}
-{term.blue}1{term.lightblue}- Apagar este horario
-{term.blue}2{term.lightblue} - Editar este horario
+{term.blue}1{term.lightblue}- Apagar este horário
+{term.blue}2{term.lightblue}- Editar este horário
 {term.blue}3{term.lightblue}- Voltar
                                                 """)
-                                                opcaoDentroDeEdit = input('Opcao: ')
+                                                opcaoDentroDeEdit = input('Opção: ')
                                             except:
                                                 continue
                                             if(opcaoDentroDeEdit == '3'):
@@ -878,15 +803,15 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                             #SUBMENU EDITA HORARIOS
                                                 while True:
                                                     try: 
-                                                        novoComeco = input('Insira o novo horario do comeco no formato correto(hh:mm): ')
-                                                        novoFim = input('Insira o novo horario do fim no formato correto(hh:mm): ')
+                                                        novoComeco = input('Insira o novo horário do começo no formato correto(hh:mm): ')
+                                                        novoFim = input('Insira o novo horário do fim no formato correto(hh:mm): ')
                                                     except:
                                                         continue
                                                     try:
                                                         if(novoComeco == '' or novoFim == ''):
                                                             break
                                                         elif(not (novoComeco[1] == ':' or novoComeco[2] == ':') or not (novoFim[1] == ':' or novoFim[2] == ':')):
-                                                            print('Insira os horarios no formato correto.')
+                                                            print('Insira os horários no formato correto.')
                                                             continue
                                                         else: 
                                                             novoComeco = datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0][:11] + novoComeco, '%Y-%m-%d %H:%M')
@@ -894,22 +819,22 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                             #PROCURANDO PROBLEMAS NO NOVO HORARIO
                                                             if(opcaoEdit > 1):
                                                                 if((novoComeco < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30) or novoComeco > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30)) or (novoFim > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30) or novoFim < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30))):
-                                                                    print('Novo horario muito longe do horario inicial, não seria melhor editar outro horario, caso possível?')
+                                                                    print('Novo horário muito longe do horário inicial, não seria melhor editar outro, caso possível?')
                                                                     continue
                                                                 elif(not novoComeco >= datetime.strptime(consultasA[iConsultas][opcaoEdit-2][1], '%Y-%m-%d %H:%M:%S')):
-                                                                    print(f'Conflito com horario anterior ({consultasA[iConsultas][opcaoEdit-2][0][11:]} - {consultasA[iConsultas][opcaoEdit-2][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
+                                                                    print(f'Conflito com horário anterior ({consultasA[iConsultas][opcaoEdit-2][0][11:]} - {consultasA[iConsultas][opcaoEdit-2][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
                                                                     continue
                                                                 elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
                                                                     print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]} - {consultasA[iConsultas][opcaoEdit][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
                                                                     continue
                                                                 elif(not novoComeco.time() >= dt.time(9, 0) or not novoFim.time() >= dt.time(9, 0)):
-                                                                    print(f'Horario antes do começo do expediente da clínica!')
+                                                                    print(f'Horário antes do começo do expediente da clínica!')
                                                                     continue
                                                                 elif(not novoFim.time() <= dt.time(18, 0)):
-                                                                    print(f'Horario após o fim do expediente da clinica!')
+                                                                    print(f'Horário após o fim do expediente da clinica!')
                                                                     continue
                                                                 elif not(novoComeco.time() <= dt.time(11, 15) and novoFim.time() <= dt.time(11,30) or novoComeco.time() >= dt.time(13, 30) and novoFim.time() >= dt.time(13,45)):
-                                                                    print('Consulta no horário de almoço! Revise o horário.')
+                                                                    print('Consulta no horário de almoço! Revise-o.')
                                                                     continue
                                                                 else:
                                                                     consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
@@ -917,16 +842,16 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                                     break
                                                             else:
                                                                 if((novoComeco < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30) or novoComeco > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30)) or (novoFim > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30) or novoFim < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30))):
-                                                                    print('Novo horario muito longe do horario inicial, não seria melhor editar outro horario, caso possível?')
+                                                                    print('Novo horário muito longe do horário inicial, não seria melhor editar outro, caso possível?')
                                                                     continue
                                                                 elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
                                                                     print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]} - {consultasA[iConsultas][opcaoEdit][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
                                                                     continue
                                                                 elif(not novoComeco.time() >= dt.time(9, 0) or not novoFim.time() >= dt.time(9, 0)):
-                                                                    print(f'Horario antes do começo do expediente da clínica!')
+                                                                    print(f'Horário antes do começo do expediente da clínica!')
                                                                     continue
                                                                 elif(not novoFim.time() <= dt.time(18, 0) or not novoComeco.time() < dt.time(18, 0)):
-                                                                    print(f'Horario após o fim do expediente da clinica!')
+                                                                    print(f'Horário após o fim do expediente da clinica!')
                                                                     continue
                                                                 elif not(novoComeco.time() <= dt.time(11, 15) and novoFim.time() <= dt.time(11,30) or novoComeco.time() >= dt.time(13, 30) and novoFim.time() >= dt.time(13,45)):
                                                                     print('Consulta no horário de almoço! Revise o horário.')
@@ -966,7 +891,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                     break
 
         else:
-            problema = 'Insira um dia que esta agendado.'
+            problema = 'Insira um dia que está agendado.'
 
 # -- FIM AGENDA -- #
 
