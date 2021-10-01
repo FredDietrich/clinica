@@ -87,8 +87,10 @@ def clinica(logado=False):
                         agenda('marcando', logado)
                     elif(resposta == 2):
                         print(term.clear)
-                        header('Acessando edição de agendamento de consulta...')    
-                        input()
+                        header('Acessando desmarcação de agenda...')   
+                        time.sleep(0.5)
+                        print(term.clear)
+                        agenda('editandoPaciente', logado) 
                     elif(resposta == 3):
                         clinica(logado)
                     else:

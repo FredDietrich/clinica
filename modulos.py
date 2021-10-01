@@ -159,7 +159,7 @@ def cadastros(clinica):#26092021
             elif medico_paciente == "P":
                 cadastroPaciente()
             else:
-                return login()
+                return login(clinica)
         if condicao == "N":
             return login()        
 
@@ -386,7 +386,7 @@ def cadastros(clinica):#26092021
                 break         
             break
         print(term.normal,term.clear)
-        return login()
+        return login(clinica)
     """ -------------------Def's de erro!!!------------------------"""
     def erroNome():
         print(term.clear)
@@ -693,6 +693,31 @@ def agenda(estado, usuarioLogado):
             print('Insira uma opção válida!')
             return agenda(estado, usuarioLogado)
 
+    elif(estado == 'editandoPaciente'):
+        sqlProcuraAgendadas = 'select * from agenda where id_paciente = ?'
+        valProcuraAgendadas = usuarioLogado[0],
+        cursor.execute(sqlProcuraAgendadas, valProcuraAgendadas)
+        resposta = cursor.fetchall()
+        if(len(resposta) == 0):
+            header('Você não possui consultas agendadas ainda!')
+        else:
+            sqlNomeMedico = 'select nome from medico where id_medico = ?'
+            header('DESMARCANDO CONSULTAS AGENDADAS')
+            indexAtual = 1
+            print()
+            for agendaResposta in resposta:
+                valNomeMedico = resposta[indexAtual-1][2],
+                cursor.execute(sqlNomeMedico, valNomeMedico)
+                nomeMedico = cursor.fetchone()
+                print(f'{term.blue}{indexAtual}{term.lightblue}: {agendaResposta[3][:16]} - {agendaResposta[4][11:16]}; Com o médico: {nomeMedico[0]}')
+                indexAtual+=1
+            opcaoEditaAgendada = leiaInt('Insira a opção de uma consulta acima para desmarcá-la ou 0 para sair: ')
+            if(opcaoEditaAgendada == 0):
+                return 0
+            sqlDeletaAgendada = 'delete from agenda where id_agenda = ?'
+            cursor.execute(sqlDeletaAgendada, (resposta[opcaoEditaAgendada-1][0],))
+            banco.commit()
+
 #Função de métodos CRUD da agenda, aqui apenas leitura e edição
 def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None):
     while True:
@@ -719,7 +744,6 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                 for horario in dia:
                     if(estado == 'criando'):
                         sqlAgenda = 'INSERT INTO agenda VALUES(null, null, ?, ?, ?)'
-                        print(usuarioLogado)
                         valoresAgenda = (usuarioLogado[0], horario[0], horario[1])
                         cursor.execute(sqlAgenda, valoresAgenda)
                         banco.commit()
@@ -737,9 +761,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                     horariosConsulta = (0, 2, 4, 5, 7, 9, 11, 13)
                     print('')
                     for i in x:
-                        if(estado != 'marcando'):
-                            print(f'{term.blue}{ili + 1}{term.lightblue}: Início: {i[0][11:]}; Fim: {i[1][11:]};')
-                        elif estado == 'marcando':
+                        if estado == 'marcando':
                             if(ili in horariosConsulta):
                                 indexAtual = horariosConsulta.index(ili)
                                 sqlLivre = 'select id_paciente from agenda where dataInicioConsulta = ? and id_medico = ?'
@@ -752,6 +774,8 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                 else:
                                     indisponiveis.append(indexAtual+1)
                                     print(f'{term.grey}{indexAtual + 1}: {i[0][11:]} - {i[1][11:]}; Indisponível;')
+                        else:
+                            print(f'{term.blue}{ili + 1}{term.lightblue}: Início: {i[0][11:]}; Fim: {i[1][11:]};')
                         ili+=1
                     print()
             #SUBMENU COM HORARIOS
@@ -793,7 +817,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                             if(opcaoDentroDeEdit == '3'):
                                                 break
                                             elif(opcaoDentroDeEdit == '1'):
-                                                sqlDelete = 'delete from agenda where dataInicioConsulta = ? and dataFimConsulta = ? and id_medico = ?'
+                                                sqlDelete = 'update agenda set id_paciente = 0 where dataInicioConsulta = ? and dataFimConsulta = ? and id_medico = ?'
                                                 valuesDelete = consultasA[iConsultas].pop(opcaoEdit-1)
                                                 valuesDelete.append(usuarioLogado[0])
                                                 cursor.execute(sqlDelete, tuple(valuesDelete))
@@ -884,9 +908,10 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                 if(horarioEscolhido in disponiveis):
                     for dia in consultasA: #itera os dias das consultas para encontrar a que tem o dia que o paciente selecionou lá no calendário (opcao)
                         if(str(dia[0][0][8:10]) == str(opcao) or str(dia[0][0][8:10]) == '0' + str(opcao)):
-                            valuesAgendaPaciente = usuarioLogado[0], dia[0][0], id_medico
+                            valuesAgendaPaciente = usuarioLogado[0], dia[horariosConsulta[horarioEscolhido-1]][0], id_medico
                             cursor.execute(sqlAgendaPaciente, valuesAgendaPaciente)
                             banco.commit()
+                    print(term.clear)
                     header('Consulta agendada com sucesso!')
                     break
 
