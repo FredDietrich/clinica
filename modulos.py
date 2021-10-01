@@ -579,6 +579,13 @@ def agenda(estado, usuarioLogado):
             ano, mes = leiaAnoMes()
         except:
             return 0
+        sqlChecaInsere = 'select * from agenda where dataInicioConsulta like ? and id_medico = ?;'
+        valChecaInsere = str(ano)+'-'+str(mes)+'%', usuarioLogado[0]
+        cursor.execute(sqlChecaInsere, valChecaInsere)
+        resposta = cursor.fetchall()
+        if not(len(resposta) == 0):
+            header('Você já possui uma agenda cadastrada para este mês!')
+            return 0
         #GERANDO O CALENDARIO/DIAS
         diass = []
         calendario = calendar.Calendar(firstweekday=0)
@@ -661,8 +668,22 @@ def agenda(estado, usuarioLogado):
                 if(str(x[0][8:10]) == i):
                     dia.append(x)
             consultasA.append(dia)
-        agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado) #Chama o CRUD da agenda com a agenda criada a partir do mês e ano inseridos
-
+        sqlAgenda = 'INSERT INTO agenda VALUES(null, null, ?, ?, ?)'
+        for dia in consultasA:
+                for horario in dia:
+                        valoresAgenda = (usuarioLogado[0], horario[0], horario[1])
+                        cursor.execute(sqlAgenda, valoresAgenda)
+                        banco.commit()
+                        header(f'{term.clear}Salvando alterações...')
+                        print()
+        while True:
+            desejaEditar = input('Deseja editar a agenda criada? [s = Sim ou n = Não]: ')
+            if(desejaEditar[0].upper() == 'S'):
+                agendaCrud(consultasA, mes, ano, dias, 'editando', usuarioLogado) #Chama o CRUD da agenda com a agenda criada a partir do mês e ano inseridos
+                break
+            elif(desejaEditar[0].upper() == 'N'):
+                return 0
+  
     #caso o médico esteja editando a sua agenda   
     elif(estado == 'editando' or estado == 'exibindo' or estado == 'marcando'): 
         try:
@@ -684,11 +705,23 @@ def agenda(estado, usuarioLogado):
         elif(opcaoEditarAgenda == 1):
             return agendaCrud(consultasFormatada, mesAtual, anoAtual, dias, estado, usuarioLogado) #Chama o CRUD da agenda com a agenda a editar trazida do banco de dados
         elif(opcaoEditarAgenda == 2):
-            sqlDeleteAgenda = 'delete from agenda where dataInicioConsulta like ?'
-            valuesDeleteAgenda = (str(anoAtual)+'-'+str(mesAtual)+'%'), 
-            cursor.execute(sqlDeleteAgenda, valuesDeleteAgenda)
-            banco.commit()
-            return 0
+            sqlChecaAgendadas = 'select * from agenda where id_medico = ? and id_paciente is not null and id_paciente <> 0 and dataInicioConsulta like ?;'
+            valuesChecaAgendada = usuarioLogado[0], str(anoAtual)+'-'+str(mesAtual)+'%' 
+            cursor.execute(sqlChecaAgendadas, valuesChecaAgendada)
+            resposta = cursor.fetchall()
+            if(len(resposta) == 0):
+                sqlDeleteAgenda = 'delete from agenda where dataInicioConsulta like ? and id_medico = ?'
+                valuesDeleteAgenda = (str(anoAtual)+'-'+str(mesAtual)+'%'), usuarioLogado[0]
+                print(term.clear)
+                header(f'{term.red}Apagando...')
+                cursor.execute(sqlDeleteAgenda, valuesDeleteAgenda)
+                banco.commit()
+                return 0
+            else:
+                print(term.clear)
+                header('Há pacientes agendados para este mês!')
+                header('Saindo...')
+                return 0
         else:
             print('Insira uma opção válida!')
             return agenda(estado, usuarioLogado)
