@@ -1,4 +1,4 @@
-#importando dependencias dos modulos internos
+#importando dependências
 
 from datetime import datetime
 import datetime as dt
@@ -8,12 +8,11 @@ from blessed import Terminal
 import getpass
 import time
 
-#setando variaveis de uso de varios modulos
+#variáveis usadas por vários módulos
 term = Terminal()
 banco = sqlite3.connect('clinica.db')
 cursor = banco.cursor()
 
-# Verifica se o numero das opções é valido
 def leiaInt(msg):
     while True:
         try:
@@ -27,7 +26,7 @@ def leiaInt(msg):
         else:
             return n
 
-# imprime as linhas nos menus principais
+#imprime uma linha
 def linha(tam=75):
     return "="*tam
 
@@ -36,7 +35,8 @@ def header(txt):
     print(linha())
     print(txt.center(75))
     print(linha())
-# faz a chamada para o login principal
+
+#menu inicial do login
 def login(clinica):
     header('Bem vindo à Clínica Tech Connect!')
     loginOpcao = input('Digite 1 para login.\n\nDigite 2 para Cadastro.\n\nInforme sua opção: ')
@@ -51,7 +51,7 @@ def login(clinica):
                 login(clinica)
                 break
 
-#faz a chamado para a area de logado
+#função de login
 def logado(clinica):
     while True:
         header('Fazendo login na clinica!')
@@ -113,7 +113,7 @@ def menuAgenda(lista):
     return opc 
 
 
-# exibe o submenu de consultar
+# exibe o submenu de consultas
 def consultar(lista):
     header('Seja Bem vindo à video Consulta!')
     c = 1
@@ -137,7 +137,7 @@ def arquivos(lista):
 
 # -- CADASTROS A PARTIR DAQUI -- #
 
-def cadastros(clinica):#26092021
+def cadastros(clinica): #26092021
 
     lista_de_regioes_crm = ['/AC','/AL','/AP','/AM','/BA','/CE','/DF',
                             '/ES','/GO','/MA','/MT','/MS','/MG','/PA',
@@ -422,6 +422,8 @@ def cadastros(clinica):#26092021
 # -- FIM CADASTROS -- #
 
 # -- AGENDA A PARTIR DAQUI -- #
+
+#função para requisitar ano e mês para o médico
 def leiaAnoMes(querMes = True):
     while True:
         try:
@@ -439,6 +441,28 @@ def leiaAnoMes(querMes = True):
         else:
             return ano, mes
 
+#função que puxa as consultas do banco de dados e agrupa elas nas camadas: 
+"""
+|-----------------------------------------|
+|                 Médico                  |
+|   |---------------------------------|   |                        
+|   |              Ano                |   |       
+|   |   |-------------------------|   |   | 
+|   |   |          Mês            |   |   |       
+|   |   |  |------------------|   |   |   |
+|   |   |  |       Dia        |   |   |   |         
+|   |   |  |  |------------|  |   |   |   |
+|   |   |  |  |  Consulta  |  |   |   |   |              
+|   |   |  |  |------------|  |   |   |   |
+|   |   |  |                  |   |   |   |
+|   |   |  |------------------|   |   |   |
+|   |   |                         |   |   |
+|   |   |-------------------------|   |   |
+|   |                                 |   |
+|   |---------------------------------|   |
+|                                         | 
+|-----------------------------------------|
+"""
 def agrupaConsultas(medico):
     select = 'select * from agenda where id_medico = ?'
     value = medico,
@@ -488,6 +512,7 @@ def agrupaConsultas(medico):
         agrupadas.append(mesess)
     return (agrupadas, anos, dias)
 
+#também puxa agendas do banco
 def puxaAgendaBanco(usuarioLogado, estado):
     sqlIdsMedico = 'select distinct id_medico from agenda;'
     cursor.execute(sqlIdsMedico)
