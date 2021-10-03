@@ -8,4 +8,4 @@
 - [@JocemarHpereira](https://github.com/JocemarHpereira) - Jocemar Hoppe
 - [@Onionb27](https://github.com/Onionb27) - Robson Reis
 - [@gahh2001](https://github.com/gahh2001) - Gabriel Goulart
-- [lucianodanieldick](https://github.com/lucianodanieldick) - Luciano Daniel
+- [@lucianodanieldick](https://github.com/lucianodanieldick) - Luciano Daniel
