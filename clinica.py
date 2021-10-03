@@ -97,10 +97,13 @@ def clinica(logado=False):
                         header('Opção Inválida')
                 elif resposta == 3:
                     print(term.clear)
-                    resposta = consultar(['Consultar', 'Sair']) # listas as opções do submenu consultar
+                    resposta = consultar(['Consultar', 'Ver consultas agendadas', 'Sair']) # listas as opções do submenu consultar
                     if resposta == 1:
                         header('Consultando...')
                     elif resposta == 2:
+                        header('Acessando tela de consultas agendadas...')
+                        agenda('exibindoPaciente', logado)
+                    elif resposta == 3:
                         header('Saindo...')
                         break
                     else:
