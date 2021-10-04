@@ -816,7 +816,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
             if(estado == 'marcando'):
                 print(term.yellow, '\nAs consultas costumam durar 30 min, podendo se estender até o início do próximo horário.', term.normal)
             elif(estado == 'editando'):
-                print(term.yellow, '\nCaso alguma consulta esteja como não editável, quer dizer que há um paciente agendado nela.')
+                print(term.yellow, '\nCaso alguma consulta esteja como não editável, quer dizer que há um paciente agendado nela, ou foi inativado.')
             for x in consultasA:
                 if(str(x[0][0][8:10]) == str(opcao) or str(x[0][0][8:10]) == '0' + str(opcao)):
                     ili = 0
@@ -828,8 +828,8 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                         if estado == 'marcando':
                             if(ili in horariosConsulta):
                                 indexAtual = horariosConsulta.index(ili)
-                                sqlLivre = 'select id_paciente from agenda where dataInicioConsulta = ? and id_medico = ?'
-                                valLivre = i[0], id_medico
+                                sqlLivre = 'select id_paciente from agenda where dataInicioConsulta = ? and dataFimConsulta = ? and id_medico = ?'
+                                valLivre = i[0], i[1], id_medico
                                 cursor.execute(sqlLivre, valLivre)
                                 temPaciente = cursor.fetchall()[0][0]
                                 if(temPaciente == None):
@@ -838,14 +838,17 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                 else:
                                     indisponiveis.append(indexAtual+1)
                                     print(f'{term.blue}{indexAtual + 1}{term.gray}: {i[0][11:]} - {i[1][11:]}; Indisponível;')
-                        elif estado == 'editando':
-                            sqlProcuraPaciente = 'select id_paciente from agenda where id_medico = ? and dataInicioConsulta = ?'
-                            valProcuraPaciente = usuarioLogado[0], i[0]
+                        elif estado == 'editando' or estado == 'exibindo':
+                            sqlProcuraPaciente = 'select id_paciente from agenda where id_medico = ? and dataInicioConsulta = ? and dataFimConsulta = ?'
+                            valProcuraPaciente = usuarioLogado[0], i[0], i[1]
                             cursor.execute(sqlProcuraPaciente, valProcuraPaciente)
                             resposta = cursor.fetchall()
-                            if(resposta[0][0] == None or resposta[0][0] == '0'):
+                            if(resposta[0][0] == None):
                                 print(f'{term.blue}{ili + 1}{term.lightblue}: Início: {i[0][11:]}; Fim: {i[1][11:]}; Editável;')
                                 disponiveis.append(ili+1)
+                            elif(resposta[0][0] == 0):
+                                print(f'{term.blue}{ili + 1}{term.gray}: Início: {i[0][11:]}; Fim: {i[1][11:]}; Inativado;')
+                                indisponiveis.append(ili+1)
                             else:
                                 print(f'{term.blue}{ili + 1}{term.gray}: Início: {i[0][11:]}; Fim: {i[1][11:]}; Não editável;')
                                 indisponiveis.append(ili+1)
@@ -882,7 +885,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                     print(f"""
 {term.green}Editando: {term.blue}Início: {consultasA[iConsultas][opcaoEdit-1][0]} Fim: {consultasA[iConsultas][opcaoEdit-1][1]}
 {term.normal}
-{term.blue}1{term.lightblue}- Apagar este horário
+{term.blue}1{term.lightblue}- Inativar este horário
 {term.blue}2{term.lightblue}- Editar este horário
 {term.blue}3{term.lightblue}- Voltar
                                                     """)
@@ -900,6 +903,9 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                     break
                                                 elif(opcaoDentroDeEdit == '2'):
                                                 #SUBMENU EDITA HORARIOS
+                                                    sqlProcuraInativado = 'select id_paciente from agenda where id_medico = ? and dataInicioConsulta = ?'
+                                                    cursor.execute(sqlProcuraInativado, (usuarioLogado[0], datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')))
+                                                    temInativadoDepois = True if cursor.fetchone()[0] == 0 else False
                                                     while True:
                                                         try: 
                                                             novoComeco = input('Insira o novo horário do começo no formato correto(hh:mm): ')
@@ -917,13 +923,15 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                                 novoFim = datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0][:11] + novoFim, '%Y-%m-%d %H:%M')
                                                                 #PROCURANDO PROBLEMAS NO NOVO HORARIO
                                                                 if(opcaoEdit > 1):
+                                                                    cursor.execute(sqlProcuraInativado, (usuarioLogado[0], datetime.strptime(consultasA[iConsultas][opcaoEdit-2][0], '%Y-%m-%d %H:%M:%S')))
+                                                                    temInativadoAntes = True if cursor.fetchone()[0] == 0 else False
                                                                     if((novoComeco < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30) or novoComeco > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30)) or (novoFim > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30) or novoFim < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30))):
                                                                         print('Novo horário muito longe do horário inicial, não seria melhor editar outro, caso possível?')
                                                                         continue
-                                                                    elif(not novoComeco >= datetime.strptime(consultasA[iConsultas][opcaoEdit-2][1], '%Y-%m-%d %H:%M:%S')):
+                                                                    elif(not novoComeco >= datetime.strptime(consultasA[iConsultas][opcaoEdit-2][1], '%Y-%m-%d %H:%M:%S') and (not temInativadoAntes)):
                                                                         print(f'Conflito com horário anterior ({consultasA[iConsultas][opcaoEdit-2][0][11:]} - {consultasA[iConsultas][opcaoEdit-2][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
                                                                         continue
-                                                                    elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
+                                                                    elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S') and (not temInativadoDepois)):
                                                                         print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]} - {consultasA[iConsultas][opcaoEdit][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
                                                                         continue
                                                                     elif(not novoComeco.time() >= dt.time(9, 0) or not novoFim.time() >= dt.time(9, 0)):
@@ -936,6 +944,10 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                                         print('Consulta no horário de almoço! Revise-o.')
                                                                         continue
                                                                     else:
+                                                                        sqlUpdate = 'update agenda set dataInicioConsulta = ?, dataFimConsulta = ? where dataInicioConsulta = ? and id_medico = ?'     
+                                                                        valuesUpdate = (datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S'), consultasA[iConsultas][opcaoEdit-1][0], usuarioLogado[0])
+                                                                        cursor.execute(sqlUpdate, valuesUpdate)
+                                                                        banco.commit()   
                                                                         consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
                                                                         print(f'\nHorário editado com sucesso, {datetime.strftime(novoComeco, "%Y-%m-%d %H:%M:%S")} até {datetime.strftime(novoFim, "%Y-%m-%d %H:%M:%S")}.')
                                                                         break
@@ -943,7 +955,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                                     if((novoComeco < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30) or novoComeco > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][0], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30)) or (novoFim > datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') + relativedelta(minutes=+30) or novoFim < datetime.strptime(consultasA[iConsultas][opcaoEdit-1][1], '%Y-%m-%d %H:%M:%S') - relativedelta(minutes=+30))):
                                                                         print('Novo horário muito longe do horário inicial, não seria melhor editar outro, caso possível?')
                                                                         continue
-                                                                    elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S')):
+                                                                    elif(not novoFim <= datetime.strptime(consultasA[iConsultas][opcaoEdit][0], '%Y-%m-%d %H:%M:%S') and (not temInativadoDepois)):
                                                                         print(f'Conflito com o próximo horário ({consultasA[iConsultas][opcaoEdit][0][11:]} - {consultasA[iConsultas][opcaoEdit][1][11:]}), por favor apague-o ou confira o novo horário inserido.')
                                                                         continue
                                                                     elif(not novoComeco.time() >= dt.time(9, 0) or not novoFim.time() >= dt.time(9, 0)):
@@ -956,11 +968,10 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                                                                         print('Consulta no horário de almoço! Revise o horário.')
                                                                         continue
                                                                     else:
-                                                                        if(estado == 'editando'):
-                                                                            sqlUpdate = 'update agenda set dataInicioConsulta = ?, dataFimConsulta = ? where dataInicioConsulta = ? and id_medico = ?'     
-                                                                            valuesUpdate = (datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S'), consultasA[iConsultas][opcaoEdit-1][0], usuarioLogado[0])
-                                                                            cursor.execute(sqlUpdate, valuesUpdate)
-                                                                            banco.commit()                                                               
+                                                                        sqlUpdate = 'update agenda set dataInicioConsulta = ?, dataFimConsulta = ? where dataInicioConsulta = ? and id_medico = ?'     
+                                                                        valuesUpdate = (datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S'), consultasA[iConsultas][opcaoEdit-1][0], usuarioLogado[0])
+                                                                        cursor.execute(sqlUpdate, valuesUpdate)
+                                                                        banco.commit()                                                           
                                                                         consultasA[iConsultas][opcaoEdit-1] = [datetime.strftime(novoComeco, '%Y-%m-%d %H:%M:%S'), datetime.strftime(novoFim, '%Y-%m-%d %H:%M:%S')]
                                                                         print(f'\nHorário editado com sucesso, {datetime.strftime(novoComeco, "%Y-%m-%d %H:%M:%S")} até {datetime.strftime(novoFim, "%Y-%m-%d %H:%M:%S")}.')
                                                                         break
@@ -974,7 +985,7 @@ def agendaCrud(consultasA, mes, ano, dias, estado, usuarioLogado, id_medico=None
                             continue
                     else: 
                         print()
-                        header('Este horário já possui um paciente agendado, então não pode ser editado.')
+                        header('Este horário já possui um paciente agendado, ou foi inativado, então não pode ser editado.')
                         print()
                         continue
             elif estado == 'exibindo': 
